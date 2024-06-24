@@ -104,16 +104,3 @@ Proof.
 			rewrite Hdec in Meq.
 			euf Meq.
 
-lemma [akma] reachability (ue_supi: index) :
-	 happens(phone_init(ue_supi)) =>
-	(exists (ntw_supi: index), 
-		ntw_init(ntw_supi) < phone_init(ue_supi) &&
-		output@ntw_init(ntw_supi) = input@phone_init(ue_supi)).
-
-
-lemma [akma] reachability :
-  forall (t:timestamp),  forall (t':timestamp),  forall (supi,core:index),
-  happens(t) => 
-  exec@t &&  t'<t  =>  fst(input@t) = db_akid(supi)@t' .
- Proof.
-   intro *.
