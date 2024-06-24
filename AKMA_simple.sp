@@ -88,14 +88,13 @@ system [akma] (!_supi (phone_init: UE_initial (supi) | ntw_init: Core_initial (s
 lemma [akma] reachability_init :
 	forall (supi:index),
 		happens(phone_init(supi)) =>
-		((dec(input@phone_init(supi),key_shared(supi)) <> fail) &&
-                  (fKAKMA(fst(dec(input@phone_init(supi), key_shared(supi))),supi_to_message(supi)) = snd(dec(input@phone_init(supi), key_shared(supi))))
+		((dec(input@phone_init(supi),key_shared(supi)) <> fail)
 		=>
 		(exists (ntw_supi:index),
 			ntw_init(ntw_supi) < phone_init(supi) &&
 			output@ntw_init(ntw_supi) = input@phone_init(supi))).
 Proof.
-	intro supi Hap [Hdec Meq].
+	intro supi Hap Hdec.
         intctxt Hdec.
         intro [H1 H2].
         exists supi.
