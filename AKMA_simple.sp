@@ -86,35 +86,18 @@ process UE_KAF (SUPI:index) =
  
 system [akma] (!_supi (phone_init: UE_initial (supi) | ntw_init: Core_initial (supi) | phone_kaf: UE_KAF (supi)) | !_af_id (ntw_kaf: Core_KAF | af: AF (af_id))).
 
-lemma [any] decrypt :
- forall (x,y,r: message),
-     dec(enc(x,r,y),y) = x.
-Proof.
- intro x y r => //.
-Qed.
-
-
-axiom [any] fail_not_pair (x,y:message): <x,y> <> fail.
- 
 lemma [akma] reachability_init :
 	forall (supi:index),
 		happens(phone_init(supi)) =>
 		((dec(input@phone_init(supi),key_shared(supi)) <> fail)
-		<=>
+		=>
 		(exists (ntw_supi:index),
 			ntw_init(ntw_supi) < phone_init(supi) &&
 			output@ntw_init(ntw_supi) = input@phone_init(supi))).
 Proof.
-    intro supi Hap.
-    split.
-        ++ intro Hdec.
-            intctxt Hdec.
-            intro [H1 H2].
-            exists supi.
-            split ; auto.
-        ++ intro [ntw_supi [Hbef Heq]].
-            expandall. rewrite -Heq.
-            have H: ntw_supi = supi. by admit. (* We need to add an hypothesis for that -> In fact, if we want to be able to prove that, we need the model of the UE to output somethin when successfull *)
-            rewrite H. simpl.
-            rewrite decrypt. apply fail_not_pair.
+    intro supi Hap Hdec.
+	intctxt Hdec.
+	intro [H1 H2].
+	exists supi.
+	split ; auto.
 Qed.
