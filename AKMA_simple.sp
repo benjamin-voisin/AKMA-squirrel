@@ -84,7 +84,7 @@ process UE_KAF (SUPI:index) =
     out(ch_UE_AF, db_akid(SUPI));
     in(ch_UE_AF, x).
  
-system [akma] (!_supi (phone_init: UE_initial (supi) | ntw_init: Core_initial (supi) | phone_kaf: UE_KAF (supi)) | !_af_id (ntw_kaf: Core_KAF | af: AF (af_id))).
+system [akma] (!_supi (phone_init: UE_initial (supi) | ntw_init: Core_initial (supi) | phone_kaf: UE_KAF (supi)) | ntw_kaf: Core_KAF | !_af_id af: AF (af_id)).
 
 lemma [akma] reachability_init :
 	forall (supi:index),
