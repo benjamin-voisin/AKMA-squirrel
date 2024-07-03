@@ -64,9 +64,8 @@ process Core_initial (SUPI: index) =
 process AF (AF_ID: index) =
     new r;
     in(ch_UE_AF, AKID);
-	let msg = <AKID, af_id_index_to_message(AF_ID)> in
-	 let msg_signature = sign(msg, AF_key(AF_ID)) in
-    out(ch_Core_AF, enc_af_core(<msg, msg_signature>, r, pk(core_key)));
+    let msg = <AKID, af_id_index_to_message(AF_ID)> in
+    out(ch_Core_AF, <af_id_index_to_message(AF_ID),enc(msg, r, AF_key(AF_ID))>);
     in(ch_Core_AF, x);
     if (dec_af_core(x, AF_key(AF_ID)) = ko) then (
         AF1: out(ch_UE_AF, ko)
@@ -79,17 +78,15 @@ process AF (AF_ID: index) =
 process Core_KAF =
     (* K_AF key-generation *)
     in(ch_Core_AF, x); new r;
-	let dec_x = dec_af_core(x, core_key) in
-	let msg = fst(dec_x) in
-	let s = snd(dec_x) in
-	let AKID = fst(msg) in
-	let AF_ID = af_id_message_to_index(snd(msg)) in
-	if (dec_x <> fail && checksign(msg, s, sign_pk(AF_key(AF_ID)))) then (
-		try find SUPI such that
-			db_akid(SUPI) = fst(dec_af_core(x,core_key)) in
-			out(ch_Core_AF, enc_af_core(fKAF(db_kakma(SUPI),snd(dec_af_core(x,core_key))),r, pk(AF_key(AF_ID))))
-		else (
-			out(ch_Core_AF, enc_af_core(ko,r,pk(AF_key(AF_ID))))
+    let AF_ID = af_id_message_to_index(fst(x)) in
+    let msg = dec(snd(x), AF_key(AF_ID)) in
+    let AKID = fst(msg) in
+    if (msg <> fail) then (
+	try find SUPI such that
+		db_akid(SUPI) = fst(dec_af_core(x,core_key)) in
+		out(ch_Core_AF, enc_af_core(fKAF(db_kakma(SUPI),snd(dec_af_core(x,core_key))),r, pk(AF_key(AF_ID))))
+	else (
+		out(ch_Core_AF, enc_af_core(ko,r,pk(AF_key(AF_ID))))
 		)
 	).
 
@@ -100,42 +97,6 @@ process UE_KAF (SUPI:index) =
 system [akma] (!_supi (phone_init: UE_initial (supi) | ntw_init: Core_initial (supi) | phone_kaf: UE_KAF (supi)) | ntw_kaf: Core_KAF | !_af_id af: AF (af_id)).
      
 
-lemma [akma] af_success_if_akid:
-  forall (af_id:index), (
-       happens(af(af_id)) => (
-         input@af(af_id) <> ko => (
-           exists (supi:index), (
-             db_akid(supi)@pred(af(af_id)) = input@af(af_id)
-           )
-         )
-      )
- ).
-Proof.
-  intro af_id Hap Hcond.
-  expandall.
-admit.
-Qed.
-(* Maybe first do the same fore the Core : if the core responds ok then there exsits a supi *)
-(* Then authenticate the Core response with a signature, to be able to link it from the AF *)
-
-
-
-lemma [akma] reachability_ue_af:
-     forall(af_id:index),
-     (happens(af(af_id)) && cond@AF2(af_id) => (
-        exists (supi:index), (
-          phone_kaf(supi) < af(af_id) &&
-          input@phone_kaf(supi) = output@af(af_id)
-          )
-       )
-     ).
-Proof.
-  intro af_id [Hap Hcond].
-  admit.
-Qed.
-    
-
-
 lemma [akma] kaf_reachability:
      forall(supi:index), (
 	happens(ntw_kaf(supi)) && cond@ntw_kaf(supi) => (
@@ -144,25 +105,17 @@ lemma [akma] kaf_reachability:
                   cond@af(af_id))
 			)).
 Proof.
-    intro *. destruct H. destruct H.
- destruct H. expand dec_x. 
-                   expand input.
-
-admit.
-admit.                   admit. admit. intro *.
-(*
-intctxt Mneq.
-euf H.
-
-                   
-intro supi [Hap [Hdb [Hdec Hsign]]].
-                   rewrite /dec_x in Hdec.
-                   admit.
-Qed.
-                   
-                         *)
-
-                   admit.
+    intro supi [Hap [Hdb Hdec]].
+    intctxt Hdec.
+        + intro [SUPI [Hbef Heq]]. admit.
+               
+        + intro [Hbef Heq]. admit.
+        + intro [af_id [Hbef Heq]].
+         exists af_id. split ;  by depends af(af_id),AF1(af_id).
+        + intro [af_id [Hbef Heq]].
+         exists af_id. split ;  by depends af(af_id),AF2(af_id).
+        + auto.
+        + intro [af_id [Hbef [_ Heq]]]. by exists af_id.
 Qed.
 
 lemma [akma] reachability_init :
