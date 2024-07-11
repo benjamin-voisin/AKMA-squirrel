@@ -39,8 +39,7 @@ channel Cue.
 process UE_initial (SUPI: index) =
     in(Cue, registration);
 	(* Check that the core sending this message is the "good" one (meaning using the same SUPI) *)
-        (* We can also check dec(registration, key_shared(SUPI)) <> fail, bc that's what we use in the reachability proof *)
-	if (fKAKMA(SUPI, fst(dec(registration, key_shared(SUPI)))) = snd(dec(registration, key_shared(SUPI))))
+	if (dec(registration, key_shared(SUPI)) <> fail)
 	then (
 		let K_AKMA = snd(dec(registration, key_shared(SUPI))) in let AKID = fAKID(SUPI, K_AKMA) in
 		db_akid(SUPI) := AKID;
