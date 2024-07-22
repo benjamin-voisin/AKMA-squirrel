@@ -52,18 +52,21 @@ process Core_initial (SUPI: index) =
  
 process AF (AF_ID: index) =
     new r;
-    in(Caf, AKID);
-    let msg = enc(<AKID, af_id_index_to_message(AF_ID)>, r, AF_key(AF_ID)) in
-    out(Ccore, msg);
-    in(Caf, x);
-    if (dec(x, AF_key(AF_ID)) = ko) then (
-        AF1: out(Cue, ko)
-    ) else (
-        let K_AF = dec(x, AF_key(AF_ID)) in
-        AF2: out(Cue, K_AF)
-    ).
- 
+    in(Caf, msg);
 
+    if (af_id_message_to_index(snd(msg)) = AF_ID) then (
+      let msg = enc(<fst(msg), af_id_index_to_message(AF_ID)>, r, AF_key(AF_ID)) in
+      out(Ccore, msg);
+      af_six: in(Caf, x);
+      if (dec(x, AF_key(AF_ID)) = ko) then (
+          af_seven_ok: out(Cue, ok)
+      ) else (
+          let K_AF = dec(x, AF_key(AF_ID)) in
+          af_seven_ko: out(Cue, ko)
+      )
+    ).
+
+ 
 process Core_KAF (AF_ID: index) =
     (* K_AF key-generation *)
     in(Ccore, x); new r;
@@ -77,15 +80,15 @@ process Core_KAF (AF_ID: index) =
 		)
 	).
 
-process UE_KAF (SUPI:index) =
-    out(Caf, db_akid(SUPI));
-    in(Cue, x).
+process UE_KAF (SUPI:index, af_id:index) =
+    ue_one: out(Caf, <db_akid(SUPI), af_id_index_to_message(af_id)>); 
+    ue_seven :in(Cue, x).
  
 system [akma] (
 	!_supi (
 		phone_init: UE_initial (supi) |
 		ntw_init: Core_initial (supi) |
-		phone_kaf: UE_KAF (supi)
+		!_af_id (phone_kaf: UE_KAF (supi, af_id))
 	) |
 	!_af_id (
 		ntw_kaf: Core_KAF (af_id) |
