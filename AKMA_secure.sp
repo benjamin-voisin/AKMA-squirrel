@@ -30,6 +30,11 @@ name core_key : message.
 name AF_key : index -> message.
 name AF_key2 : index -> message.
 
+(* For communications btw UE and AF, we probably need asymetric encryption *)
+aenc ue_af_enc, ue_af_dec, pk.
+name UE_key : index -> message.
+name AF_ue_key : index -> message.
+
 channel Ccore.
 channel Caf.
 channel Cue.
@@ -55,9 +60,10 @@ process Core_initial (SUPI: index) =
  
 process AF (AF_ID: index) =
     new r;
-    in(Caf, msg);
+    in(Caf, enc_msg);
+    let msg = ue_af_dec(enc_msg, AF_ue_key(AF_ID)) in
 
-    if (af_id_message_to_index(snd(msg)) = AF_ID) then (
+    if (msg <> fail) && (af_id_message_to_index(snd(msg)) = AF_ID) then (
       let msg = enc(<fst(msg), af_id_index_to_message(AF_ID)>, r, AF_key(AF_ID)) in
       out(Ccore, msg);
       in(Caf, x);
@@ -84,7 +90,8 @@ process Core_KAF (AF_ID: index) =
 	).
 
 process UE_KAF (SUPI:index, af_id:index) =
-    ue_one: out(Caf, <AKID_with_AF_ID(db_akid(SUPI), af_id_index_to_message(af_id)), af_id_index_to_message(af_id)>); 
+     new r;
+    ue_one: out(Caf, ue_af_enc(<AKID_with_AF_ID(db_akid(SUPI), af_id_index_to_message(af_id)), af_id_index_to_message(af_id)>, r, pk(AF_ue_key(af_id)))); 
     ue_seven :in(Cue, x).
  
 
