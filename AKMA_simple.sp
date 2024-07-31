@@ -57,7 +57,7 @@ process AF (AF_ID: index) =
     if (af_id_message_to_index(snd(msg)) = AF_ID) then (
       let msg = enc(<fst(msg), af_id_index_to_message(AF_ID)>, r, AF_key(AF_ID)) in
       out(Ccore, msg);
-      af_six: in(Caf, x);
+      in(Caf, x);
       if (dec(x, AF_key(AF_ID)) = ko) then (
           af_seven_ok: out(Cue, ok)
       ) else (
@@ -84,6 +84,7 @@ process UE_KAF (SUPI:index, af_id:index) =
     ue_one: out(Caf, <db_akid(SUPI), af_id_index_to_message(af_id)>); 
     ue_seven :in(Cue, x).
  
+
 system [akma] (
 	!_supi (
 		phone_init: UE_initial (supi) |
@@ -95,6 +96,7 @@ system [akma] (
 		af: AF (af_id)
 	)
 ).
+
 
 lemma [akma] reachability_init :
 	forall (supi:index),
@@ -114,7 +116,8 @@ Qed.
 
 lemma [akma] kaf_reachability:
 	forall (ntw_af_id:index, supi:index), (
-		happens(ntw_kaf(ntw_af_id, supi)) && cond@ntw_kaf(ntw_af_id, supi) => (
+		happens(ntw_kaf(ntw_af_id, supi)) && (cond@ntw_kaf(ntw_af_id, supi)
+) => (
 			exists (af_id: index), (
 				af(af_id) < ntw_kaf(ntw_af_id, supi) &&
 				output@af(af_id) = input@ntw_kaf(ntw_af_id, supi)
@@ -122,7 +125,7 @@ lemma [akma] kaf_reachability:
 		)
 	).
 Proof.
-  intro ntw_af_id supi [Hap [Hdb [Hdec Hafid]]].
+  intro ntw_af_id supi [Hap [Hdb [Hdec Haf_id]]].
   intctxt Hdec. intro [Hb Hi].
   by exists ntw_af_id. 
 Qed.
