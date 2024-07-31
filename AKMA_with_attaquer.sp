@@ -149,12 +149,13 @@ lemma [akma_desync] if_ok_then_ok:
   ).
 Proof.
   intro af_id supi [Hap_af [Hap_ntw [Heq [Hdb [Hdec Haf_id]]]]].
-  intctxt Hdec. intro [Hbef Heq2].
+  intctxt Hdec. intro [Hbef Heq2]. expandall.
   have Hout: output@ntw_kaf(af_id, supi) <> ko by admit.
   admit.
 Qed.
 
-lemma [akma_desync] desynchronisation:
+
+lemma [akma_desync] weak_desynchronisation:
   forall (supi, af_id: index), ((
     happens(ue_seven(supi, af_id)) &&
     happens(af(af_id)) &&
@@ -176,4 +177,35 @@ Proof.
   split.
   + apply if_ok_then_ok af_id supi. repeat split => //.
   + simpl. rewrite Hatt_match. auto.
+Qed.
+
+
+(* We can add some axioms to prove better desynchronisation *)
+axiom [akma_desync]  blah (supi, af_id:index): att(frame@pred(ue_seven(supi, af_id))) =  ko.
+axiom [akma_desync] blah2 (supi, af_id:index, tau: timestamp): att(frame@pred(tau)) = ko.
+axiom [akma_desync] blah3 (supi, af_id, j:index):
+    happens(desync_attaquer(j)) =>
+    att(frame@pred(ue_seven(supi, af_id))) =  ko.
+
+
+lemma [akma_desync] desynchronisation:
+  forall (supi, af_id: index), (
+    happens(ue_seven(supi, af_id)) &&
+    happens(af(af_id)) &&
+    happens(ntw_kaf(af_id, supi)) &&
+    dec(input@af(af_id), AF_key2(af_id)) <> fail &&
+    cond@ntw_kaf(af_id, supi) &&
+    output@ntw_kaf(af_id, supi) = input@af(af_id) =>
+
+    exists(af_id2: index), (
+      happens(af_seven_ok(af_id2)) &&
+      input@ue_seven(supi, af_id2) = ko
+    )
+  )
+.
+Proof.
+  intro supi af_id [Hap_ue Hap_af Hdec Hap_ntw Hcond Heq].
+  exists af_id. split.
+  + apply if_ok_then_ok af_id supi. repeat split => //.
+  + simpl. apply blah2 supi af_id (ue_seven(supi, af_id)).
 Qed.
