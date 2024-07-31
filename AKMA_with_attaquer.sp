@@ -65,10 +65,10 @@ process AF (AF_ID: index) =
       out(Ccore, msg);
       in(Caf, x);
       if (dec(x, AF_key(AF_ID)) = ko) then (
-          af_seven_ok: out(Cue, ok)
+          af_seven_ko: out(Cue, ko)
       ) else (
           let K_AF = dec(x, AF_key(AF_ID)) in
-          af_seven_ko: out(Cue, ko)
+          af_seven_ok: out(Cue, ok)
       )
     ).
 
