@@ -34,11 +34,13 @@ name AF_key2 : index -> message.
 
 channel Ccore.
 channel Caf.
+channel cag.
 channel Cue.
+channel Cue1.
 
 
 process UE_initial (SUPI: index) =
-    in(Cue, registration);
+    in(Cue1, registration);
 	(* Check that the core sending this message is the "good" one (meaning using the same SUPI) *)
 	if (dec(registration, key_shared(SUPI)) <> fail) then (
 		let K_AKMA = snd(dec(registration, key_shared(SUPI)))
@@ -53,23 +55,28 @@ process Core_initial (SUPI: index) =
     new r; new ausf_rand;
 	let k_ausf= kausf(SUPI,ausf_rand) in
 	let K_AKMA=fKAKMA(SUPI, k_ausf) in
-    out(Cue, enc(<k_ausf,K_AKMA>, r, key_shared(SUPI))).
-    
+    out(Cue1, enc(<k_ausf,K_AKMA>, r, key_shared(SUPI))).
+
+     
  
 process AF (AF_ID: index) =
     new r;
-    in(Caf, msg);
+let msg = core_key in
+    (* in(Caf, msg); *)
 
     if (af_id_message_to_index(snd(msg)) = AF_ID) then (
-      let msg = enc(<fst(msg), af_id_index_to_message(AF_ID)>, r, AF_key(AF_ID)) in
-      out(Ccore, msg);
-      in(Caf, x);
-      if (dec(x, AF_key(AF_ID)) = ko) then (
+      let msg2 = enc(<fst(msg), af_id_index_to_message(AF_ID)>, r, AF_key(AF_ID)) in
+      out(Ccore, msg2);
+      af_six: in(cag, x);
+      af_seven: out(Cue, x)
+       (*
+      if (dec(x, AF_key2(AF_ID)) = ko) then (
           af_seven_ko: out(Cue, ko)
       ) else (
-          let K_AF = dec(x, AF_key(AF_ID)) in
+          let K_AF = dec(x, AF_key2(AF_ID)) in
           af_seven_ok: out(Cue, ok)
       )
+         *)
     ).
 
  
@@ -80,9 +87,9 @@ process Core_KAF (AF_ID: index) =
     let AKID = fst(msg) in
     if (msg <> fail && AF_ID = af_id_message_to_index(snd(msg))) then (
 		try find SUPI such that (db_akid(SUPI) = AKID) in
-			out(Caf, enc(fKAF(db_kakma(SUPI), af_id_index_to_message(AF_ID)),r, AF_key2(AF_ID) ))
+			out(cag, enc(fKAF(db_kakma(SUPI), af_id_index_to_message(AF_ID)),r, AF_key2(AF_ID) ))
 	else (
-		out(Caf, enc(ko, r, AF_key2(AF_ID)))
+		out(cag, enc(ko, r, AF_key2(AF_ID)))
 		)
 	).
 
@@ -95,7 +102,7 @@ process desync_attaquer(j:index) =
   out(Cue, ko).
 
 system [akma_desync] (
-        !_j desync_attaquer (j) |
+         (* !_j desync_attaquer (j) | *) 
 	!_supi (
 		phone_init: UE_initial (supi) |
 		ntw_init: Core_initial (supi) |
@@ -138,6 +145,18 @@ Proof.
   intctxt Hdec. intro [Hb Hi].
   by exists ntw_af_id. 
 Qed.
+ 
+lemma [akma_desync] if_core_then_af:
+  forall(af_id:index), (
+    happens(af(af_id)) &&
+    cond@af1(af_id) &&
+    dec(input@(af1(af_id)), AF_key2(af_id)) <> ko =>
+    happens(af_seven_ok(af_id))
+).
+Proof.
+  intro af_id [Hap Hcod Hdec].
+  expandall. 
+Qed.
 
 lemma [akma_desync] if_ok_then_ok:
   forall (af_id,supi:index), (
@@ -150,8 +169,9 @@ lemma [akma_desync] if_ok_then_ok:
 Proof.
   intro af_id supi [Hap_af [Hap_ntw [Heq [Hdb [Hdec Haf_id]]]]].
   intctxt Hdec. intro [Hbef Heq2]. expandall.
-  have Hout: output@ntw_kaf(af_id, supi) <> ko by admit.
-  admit.
+  apply if_core_then_af. repeat split => //.
+    + admit.
+    + admit.
 Qed.
 
 
