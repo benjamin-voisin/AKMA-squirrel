@@ -2,6 +2,7 @@ channel c1.
 channel c2.
 channel c3.
 channel c4.
+channel c5.
 
 name m: message.
 name m2: message.
@@ -13,9 +14,9 @@ process toto (i:index) =
     toto_2: out(c2, m);
     toto_3: in(c3, x);
     if (x = m2) then (
-      toto_4m: out(c4, m)
+      toto_m_4: out(c4, m)
     ) else (
-      toto_4m2: out(c4, m2)
+      toto_m2_4: out(c5, m2)
     )
   )
 .
