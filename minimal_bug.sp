@@ -7,14 +7,15 @@ name m: message.
 name m2: message.
 
 
-
 process toto (i:index) = 
   toto_1: in(c1, x);
   if (x = m) then (
     toto_2: out(c2, m);
     toto_3: in(c3, x);
     if (x = m2) then (
-      toto_4_m: out(c4, m)
+      toto_4m: out(c4, m)
+    ) else (
+      toto_4m2: out(c4, m2)
     )
   )
 .
