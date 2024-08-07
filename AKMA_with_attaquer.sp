@@ -162,6 +162,29 @@ Proof.
   exists ntw_af_id. split => //.
      admit. admit.
 Qed.
+
+
+lemma [akma_desync] executable_AF (t:timestamp) (af_id,supi:index) :
+  happens(t) => exec@t => af_seven_ok(af_id)<=t => exec@ntw_kaf(af_id, supi) && 
+cond@ntw_kaf(af_id, supi).
+ Proof.
+intro Hh Hexe Hle.
+  executable t => // Hblah'. expandall.
+    
+  by use Hblah' with af_seven_ok(af_id).
+Qed.
+
+(*
+lemma [akma_desync] reachability_ok:
+  forall (af_id,supi:index), (
+happens(af_seven_ok(af_id))
+    happens(af(af_id)) &&
+    happens(ntw_kaf(af_id, supi)) &&
+    input@(af(af_id)) = output@ntw_kaf(af_id, supi) &&
+    cond@ntw_kaf(af_id, supi) =>
+    
+  ).
+*)
  
 lemma [akma_desync] if_core_then_af:
   forall(af_id:index), (
