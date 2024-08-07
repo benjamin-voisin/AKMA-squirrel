@@ -32,15 +32,27 @@ name core_key : message.
 name AF_key : index -> message.
 name AF_key2 : index -> message.
 
+(* 
 channel Ccore.
 channel Caf.
 channel cag.
 channel Cue.
 channel Cue1.
+*)
 
+channel Cregistr.
+channel Cone.
+channel Ctwo.
+channel Cthree.
+channel Cfour.
+channel Cfive.
+channel Csix.
+channel Cseven.
+
+channel Cdummy.
 
 process UE_initial (SUPI: index) =
-    in(Cue1, registration);
+    in(Cregistr, registration);
 	(* Check that the core sending this message is the "good" one (meaning using the same SUPI) *)
 	if (dec(registration, key_shared(SUPI)) <> fail) then (
 		let K_AKMA = snd(dec(registration, key_shared(SUPI)))
@@ -55,51 +67,55 @@ process Core_initial (SUPI: index) =
     new r; new ausf_rand;
 	let k_ausf= kausf(SUPI,ausf_rand) in
 	let K_AKMA=fKAKMA(SUPI, k_ausf) in
-    out(Cue1, enc(<k_ausf,K_AKMA>, r, key_shared(SUPI))).
+    out(Cregistr, enc(<k_ausf,K_AKMA>, r, key_shared(SUPI))).
 
-     
  
 process AF (AF_ID: index) =
     new r;
-let msg = core_key in
-    (* in(Caf, msg); *)
+    in(Cone, msg);
 
     if (af_id_message_to_index(snd(msg)) = AF_ID) then (
       let msg2 = enc(<fst(msg), af_id_index_to_message(AF_ID)>, r, AF_key(AF_ID)) in
-      out(Ccore, msg2);
-      af_six: in(cag, x);
-      af_seven: out(Cue, x)
-       (*
+      af_two: out(Ctwo, msg2);
+      in(Csix, x);
       if (dec(x, AF_key2(AF_ID)) = ko) then (
-          af_seven_ko: out(Cue, ko)
+          af_seven_ko: out(Cseven, ko)
       ) else (
           let K_AF = dec(x, AF_key2(AF_ID)) in
-          af_seven_ok: out(Cue, ok)
+          af_seven_ok: out(Cseven, ok)
       )
-         *)
-    ).
+   )
+   else (
+     null
+)
+    .
 
  
 process Core_KAF (AF_ID: index) =
     (* K_AF key-generation *)
-    in(Ccore, x); new r;
+    in(Ctwo, x); new r;
     let msg = dec(x, AF_key(AF_ID)) in
     let AKID = fst(msg) in
     if (msg <> fail && AF_ID = af_id_message_to_index(snd(msg))) then (
-		try find SUPI such that (db_akid(SUPI) = AKID) in
-			out(cag, enc(fKAF(db_kakma(SUPI), af_id_index_to_message(AF_ID)),r, AF_key2(AF_ID) ))
+	try find SUPI such that (db_akid(SUPI) = AKID) in (
+ out(Csix, enc(fKAF(db_kakma(SUPI), af_id_index_to_message(AF_ID)),r, AF_key2(AF_ID) ))
+ )
 	else (
-		out(cag, enc(ko, r, AF_key2(AF_ID)))
+		out(Csix, enc(ko, r, AF_key2(AF_ID)))
 		)
-	).
+	)
+     else (
+       out(Cdummy, ko)
+).
 
 process UE_KAF (SUPI:index, af_id:index) =
-    ue_one: out(Caf, <db_akid(SUPI), af_id_index_to_message(af_id)>); 
-    ue_seven :in(Cue, x).
+    ue_one: out(Cone, <db_akid(SUPI), af_id_index_to_message(af_id)>); 
+    ue_seven :in(Cseven, x).
  
 
 process desync_attaquer(j:index) =
-  out(Cue, ko).
+  out(Cseven, ko).
+
 
 system [akma_desync] (
          (* !_j desync_attaquer (j) | *) 
@@ -143,19 +159,22 @@ lemma [akma_desync] kaf_reachability:
 Proof.
   intro ntw_af_id supi [Hap [Hdb [Hdec Haf_id]]].
   intctxt Hdec. intro [Hb Hi].
-  by exists ntw_af_id. 
+  exists ntw_af_id. split => //.
+     admit. admit.
 Qed.
  
 lemma [akma_desync] if_core_then_af:
   forall(af_id:index), (
     happens(af(af_id)) &&
-    cond@af1(af_id) &&
-    dec(input@(af1(af_id)), AF_key2(af_id)) <> ko =>
+    (* cond@af(af_id) && *)
+    happens(af_two(af_id)) &&
+    af_id_message_to_index(snd(input@af(af_id))) = af_id &&
+    dec(input@(af_seven_ok(af_id)), AF_key2(af_id)) <> ko =>
     happens(af_seven_ok(af_id))
 ).
 Proof.
-  intro af_id [Hap Hcod Hdec].
-  expandall. 
+  intro af_id [Hap Haptwo Hcod Hdec].
+  expandall. executable af_two(af_id). auto. auto.
 Qed.
 
 lemma [akma_desync] if_ok_then_ok:
