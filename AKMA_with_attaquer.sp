@@ -4,6 +4,7 @@ set timeout = 12.
 
 (* Needs to be a hash *)
 abstract fAKID: index * message -> message. (* AKID derivation. *)
+(* hash fKAKMA. *)
 abstract fKAKMA: index * message -> message. (*AKMA derivation *)
 (*
 abstract fKAF: message *message -> message. (*K_AF derivation. Inputs: K_AKMA, ID_AF*)
@@ -15,12 +16,14 @@ abstract key_creation: message -> message.
 
 abstract ok : message.
 abstract ko : message.
+axiom [any] ok_not_ko: ok <> ko.
 
 mutable db_akid(SUPI:index) : message = zero.
 mutable db_kakma(SUPI:index) : message = zero.
 
 abstract af_id_index_to_message : index -> message.
 abstract af_id_message_to_index : message -> index.
+abstract supi_index_to_message : index -> message.
 axiom [any] af_id_conv (x:message) :
 	af_id_index_to_message(af_id_message_to_index(x)) = x.
 
@@ -78,17 +81,14 @@ process AF (AF_ID: index) =
       let msg2 = enc(<fst(msg), af_id_index_to_message(AF_ID)>, r, AF_key(AF_ID)) in
       af_two: out(Ctwo, msg2);
       in(Csix, x);
-      if (dec(x, AF_key2(AF_ID)) = ko) then (
-          af_seven_ko: out(Cseven, ko)
-      ) else (
-          let K_AF = dec(x, AF_key2(AF_ID)) in
+      if (fst(dec(x, AF_key2(AF_ID))) = ok) then (
+          let K_AF = snd(dec(x, AF_key2(AF_ID))) in
           af_seven_ok: out(Cseven, ok)
+      ) else (
+          af_seven_ko: out(Cseven, ko)
       )
    )
-   else (
-     null
-)
-    .
+.
 
  
 process Core_KAF (AF_ID: index) =
@@ -98,10 +98,10 @@ process Core_KAF (AF_ID: index) =
     let AKID = fst(msg) in
     if (msg <> fail && AF_ID = af_id_message_to_index(snd(msg))) then (
 	try find SUPI such that (db_akid(SUPI) = AKID) in (
- out(Csix, enc(fKAF(db_kakma(SUPI), af_id_index_to_message(AF_ID)),r, AF_key2(AF_ID) ))
+ out(Csix, enc(<ok, fKAF(db_kakma(SUPI), af_id_index_to_message(AF_ID))>,r, AF_key2(AF_ID) ))
  )
 	else (
-		out(Csix, enc(ko, r, AF_key2(AF_ID)))
+		out(Csix, enc(<ko,ko>, r, AF_key2(AF_ID)))
 		)
 	)
      else (
@@ -118,7 +118,7 @@ process desync_attaquer(j:index) =
 
 
 system [akma_desync] (
-         (* !_j desync_attaquer (j) | *) 
+        !_j desync_attaquer (j) |
 	!_supi (
 		phone_init: UE_initial (supi) |
 		ntw_init: Core_initial (supi) |
@@ -147,57 +147,47 @@ Proof.
 Qed.
 
 lemma [akma_desync] kaf_reachability:
-	forall (ntw_af_id:index, supi:index), (
-		happens(ntw_kaf(ntw_af_id, supi)) && (cond@ntw_kaf(ntw_af_id, supi)
-) => (
-			exists (af_id: index), (
-				af(af_id) < ntw_kaf(ntw_af_id, supi) &&
-				output@af(af_id) = input@ntw_kaf(ntw_af_id, supi)
-			)
-		)
-	).
+    forall (ntw_af_id:index, supi:index), (
+        happens(ntw_kaf(ntw_af_id, supi)) && (cond@ntw_kaf(ntw_af_id, supi)
+    ) => (
+        exists (af_id: index), (
+            af(af_id) < ntw_kaf(ntw_af_id, supi) &&
+	        output@af(af_id) = input@ntw_kaf(ntw_af_id, supi)
+	    )
+        )
+    )
+.
 Proof.
   intro ntw_af_id supi [Hap [Hdb [Hdec Haf_id]]].
   intctxt Hdec. intro [Hb Hi].
   exists ntw_af_id. split => //.
-     admit. admit.
+     + simpl. admit.
+     + simpl. admit.
 Qed.
-
-
-lemma [akma_desync] executable_AF (t:timestamp) (af_id,supi:index) :
-  happens(t) => exec@t => af_seven_ok(af_id)<=t => exec@ntw_kaf(af_id, supi) && 
-cond@ntw_kaf(af_id, supi).
- Proof.
-intro Hh Hexe Hle.
-  executable t => // Hblah'. expandall.
-    
-  by use Hblah' with af_seven_ok(af_id).
-Qed.
-
-(*
-lemma [akma_desync] reachability_ok:
-  forall (af_id,supi:index), (
-happens(af_seven_ok(af_id))
-    happens(af(af_id)) &&
-    happens(ntw_kaf(af_id, supi)) &&
-    input@(af(af_id)) = output@ntw_kaf(af_id, supi) &&
-    cond@ntw_kaf(af_id, supi) =>
-    
-  ).
-*)
  
-lemma [akma_desync] if_core_then_af:
-  forall(af_id:index), (
-    happens(af(af_id)) &&
-    (* cond@af(af_id) && *)
-    happens(af_two(af_id)) &&
-    af_id_message_to_index(snd(input@af(af_id))) = af_id &&
-    dec(input@(af_seven_ok(af_id)), AF_key2(af_id)) <> ko =>
-    happens(af_seven_ok(af_id))
-).
+axiom [any] dec_pairs_ok (x,key: message): fst(dec(x, key)) = ok => dec(x, key) <> fail.
+
+lemma [akma_desync] executable_AF (t:timestamp) (af_id:index) :
+  happens(t) => exec@t => af_seven_ok(af_id)<=t => exists(supi: index), (exec@ntw_kaf(af_id, supi) && 
+cond@ntw_kaf(af_id, supi)).
 Proof.
-  intro af_id [Hap Haptwo Hcod Hdec].
-  expandall. executable af_two(af_id). auto. auto.
+  intro Hh Hexe Hle.
+  executable t => // Hexe'.
+  use Hexe' with af_seven_ok(af_id) as [Haf_exe Hok] => //.
+  expand cond. assert dec(input@af_seven_ok(af_id), AF_key2(af_id)) <> fail as Hdec. { 
+    by apply dec_pairs_ok.
+  }.
+  intctxt Hdec.
+    + intro [SUPI H]. exists SUPI.
+      by use Hexe' with ntw_kaf(af_id, SUPI).
+    + intro [SUPI H]. exists SUPI.
+      by use Hexe' with ntw_kaf(af_id, SUPI).
+    + intro [SUPI H]. exists SUPI.
+      by use Hexe' with ntw_kaf(af_id, SUPI).
+    + intro [SUPI H]. exists SUPI.
+      by use Hexe' with ntw_kaf(af_id, SUPI).
+    + intro [H1 H2]. expandall.
+      by use ok_not_ko.
 Qed.
 
 lemma [akma_desync] if_ok_then_ok:
@@ -211,11 +201,8 @@ lemma [akma_desync] if_ok_then_ok:
 Proof.
   intro af_id supi [Hap_af [Hap_ntw [Heq [Hdb [Hdec Haf_id]]]]].
   intctxt Hdec. intro [Hbef Heq2]. expandall.
-  apply if_core_then_af. repeat split => //.
-    + admit.
-    + admit.
+  admit.
 Qed.
-
 
 lemma [akma_desync] weak_desynchronisation:
   forall (supi, af_id: index), ((
