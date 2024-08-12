@@ -2,19 +2,19 @@ include Basic.
 set PostQuantumSound = true.
 set timeout = 12.
 
-abstract fAKID: index * message -> message. (* AKID derivation. *)
+abstract fAKID: index * message * index -> message. (* AKID derivation. *)
 abstract fKAKMA: index * message -> message. (*AKMA derivation *)
 abstract fKAF: message *message -> message. (*K_AF derivation. Inputs: K_AKMA, ID_AF*)
 abstract kausf: index *message -> message.
 abstract key_creation: message -> message.
 
 (* Function to make AKID uniq for each af_id *)
-hash AKID_with_AF_ID.
+(* hash AKID_with_AF_ID. *)
 
 abstract ok : message.
 abstract ko : message.
 
-mutable db_akid(SUPI:index) : message = zero.
+mutable db_akid(SUPI:index, af_id: index) : message = zero.
 mutable db_kakma(SUPI:index) : message = zero.
 mutable db_kausf(SUPI: index) : message = zero.
 
@@ -42,19 +42,19 @@ channel Cue.
 
 
 (* add af_id index *)
-process UE_initial (SUPI: index) =
+process UE_initial (SUPI, af_id: index) =
     in(Cue, registration);
 	(* Check that the core sending this message is the "good" one (meaning using the same SUPI) *)
 	if (dec(registration, key_shared(SUPI)) <> fail) then (
-		let K_AKMA = snd(dec(registration, key_shared(SUPI))) in let AKID = fAKID(SUPI, K_AKMA) in
-		db_akid(SUPI) := AKID;
+		let K_AKMA = snd(dec(registration, key_shared(SUPI))) in let AKID = fAKID(SUPI, K_AKMA, af_id) in
+		db_akid(SUPI, af_id) := AKID;
 		db_kakma(SUPI) := K_AKMA
 		(* Maybe output smth to show that it worked ? *)
 	).
 
 
 (* add af_id index *)
-process Core_initial (SUPI: index) = 
+process Core_initial (SUPI, af_id: index) = 
     new r; new ausf_rand;
 	let k_ausf= kausf(SUPI,ausf_rand) in
 	let K_AKMA=fKAKMA(SUPI, k_ausf) in
@@ -72,10 +72,10 @@ process AF (AF_ID: index) =
       out(Ccore, msg);
       in(Caf, x);
        new r';
-      if (dec(fst(x), AF_key(AF_ID)) = ok) then (
-          af_seven_ko: out(Cue, snd(x))
+      if (fst(fst(dec(x, AF_key2(AF_ID)))) = ok) then (
+          af_seven_ko: out(Cue, snd(dec(x, AF_key2(AF_ID))))
       ) else (
-          af_seven_ok: out(Cue, snd(x))
+          af_seven_ko: out(Cue, snd(dec(x, AF_key2(AF_ID))))
       )
     ).
 
@@ -86,11 +86,11 @@ process Core_KAF (AF_ID: index) =
     let msg = dec(x, AF_key(AF_ID)) in
     let AKID = fst(msg) in
     if (msg <> fail && AF_ID = af_id_message_to_index(snd(msg))) then (
-        try find SUPI such that (db_akid(SUPI) = AKID) in
+        try find SUPI such that (db_akid(SUPI, AF_ID) = AKID) in
             let kaf = fKAF(db_kakma(SUPI), af_id_index_to_message(AF_ID)) in
-            out(Caf, enc(<kaf, enc(kaf, r', db_kausf(SUPI))>, r, AF_key2(AF_ID)))
+            out(Caf, enc(<<ok,kaf>, enc(kaf, r', db_kausf(SUPI))>, r, AF_key2(AF_ID)))
 	else (
-            new r2; out(Caf, enc(<ko, enc(ko, r', r2)>, r, AF_key2(AF_ID)))
+            new r2; out(Caf, enc(<<ko, ko>, enc(ko, r', r2)>, r, AF_key2(AF_ID)))
         )
     )
     else (
@@ -101,7 +101,7 @@ process Core_KAF (AF_ID: index) =
  (* On peut envoyer le SUPI à l'AF et avoir un key_shared(supi, af_id) *)
 process UE_KAF (SUPI:index, af_id:index) =
      new r;
-    ue_one: out(Caf, ue_af_enc(<AKID_with_AF_ID(db_akid(SUPI), af_id_index_to_message(af_id)), <af_id_index_to_message(af_id), pk(UE_key(SUPI))>>, r, pk(AF_ue_key(af_id)))); 
+    ue_one: out(Caf, ue_af_enc(<db_akid(SUPI), <af_id_index_to_message(af_id), pk(UE_key(SUPI))>>, r, pk(AF_ue_key(af_id)))); 
     ue_seven :in(Cue, x).
  
 
