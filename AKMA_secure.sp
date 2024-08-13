@@ -56,7 +56,7 @@ process UE_initial (SUPI, af_id: index) =
 
 
 (* add af_id index *)
-process Core_initial (SUPI, af_id: index) = 
+process Core_initial (SUPI: index) = 
     new r; new ausf_rand;
 	let k_ausf= kausf(SUPI,ausf_rand) in
 	let K_AKMA=fKAKMA(SUPI, k_ausf) in
@@ -90,7 +90,6 @@ process Core_KAF (AF_ID: index) =
             let kaf = fKAF(db_kakma(SUPI), af_id_index_to_message(AF_ID)) in
             out(Caf, enc(<<ok,kaf>, enc(kaf, r', db_kausf(SUPI))>, r, AF_key2(AF_ID)))
 	else (
-            new fake_response;
             new r2; out(Caf, enc(<<ko, ko>, enc(ko, r', r2)>, r, AF_key2(AF_ID)))
         )
     )
@@ -107,9 +106,11 @@ process UE_KAF (SUPI:index, af_id:index) =
  
 
 system [akma] (
+    !_supi (
+        ntw_init: Core_initial (supi)
+    ) |
     !_supi !_af_id (
         phone_init: UE_initial (supi, af_id) |
-        ntw_init: Core_initial (supi, af_id) |
         phone_kaf: UE_KAF (supi, af_id)
     ) |
     !_af_id (
@@ -124,14 +125,12 @@ lemma [akma] reachability_init :
 	((dec(input@phone_init(supi, af_id),key_shared(supi)) <> fail)
 	=>
 	(exists (ntw_supi, ntw_af_id:index),
-	    ntw_init(ntw_supi, ntw_af_id) < phone_init(supi, ntw_af_id) &&
-	    output@ntw_init(ntw_supi, ntw_af_id) = input@phone_init(supi, ntw_af_id))).
+	    ntw_init(ntw_supi) < phone_init(supi, ntw_af_id) &&
+	    output@ntw_init(ntw_supi) = input@phone_init(supi, ntw_af_id))).
 Proof.
     intro supi af_id Hap Hdec.
 	intctxt Hdec.
-	intro [af_id0 [H1 H2]].
-        (* This might not be true in current state... *)
-        assert af_id0 = af_id by admit.
+	intro [H1 H2].
         by exists supi, af_id.
 Qed.
 
