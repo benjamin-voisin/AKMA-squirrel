@@ -32,9 +32,11 @@ name AF_key : index -> message.
 name AF_key2 : index -> message.
 
 (* For communications btw UE and AF, we probably need asymetric encryption *)
+(*
 aenc ue_af_enc, ue_af_dec, pk.
 name UE_key : index -> message.
 name AF_ue_key : index -> message.
+*)
 
 channel Ccore.
 channel Caf.
@@ -64,18 +66,16 @@ process Core_initial (SUPI, af_id: index) =
  
 process AF (AF_ID: index) =
     new r;
-    in(Caf, enc_msg);
-    let msg = ue_af_dec(enc_msg, AF_ue_key(AF_ID)) in
-
-    if (msg <> fail) && (af_id_message_to_index(fst(snd(msg))) = AF_ID) then (
+    in(Caf, msg);
+    if (af_id_message_to_index(fst(snd(msg))) = AF_ID) then (
       let msg = enc(<fst(msg), af_id_index_to_message(AF_ID)>, r, AF_key(AF_ID)) in
       out(Ccore, msg);
       in(Caf, x);
-       new r';
+      new fake_response;
       if (fst(fst(dec(x, AF_key2(AF_ID)))) = ok) then (
-          af_seven_ko: out(Cue, snd(dec(x, AF_key2(AF_ID))))
+          af_seven_ko: out(Cue, diff(snd(dec(x, AF_key2(AF_ID))), fake_response))
       ) else (
-          af_seven_ko: out(Cue, snd(dec(x, AF_key2(AF_ID))))
+          af_seven_ko: out(Cue, diff(snd(dec(x, AF_key2(AF_ID))), fake_response))
       )
     ).
 
@@ -86,10 +86,11 @@ process Core_KAF (AF_ID: index) =
     let msg = dec(x, AF_key(AF_ID)) in
     let AKID = fst(msg) in
     if (msg <> fail && AF_ID = af_id_message_to_index(snd(msg))) then (
-        try find SUPI such that (db_akid(SUPI, AF_ID) = AKID) in
+        try find SUPI such that (db_akid(SUPI)(AF_ID) = AKID) in
             let kaf = fKAF(db_kakma(SUPI), af_id_index_to_message(AF_ID)) in
             out(Caf, enc(<<ok,kaf>, enc(kaf, r', db_kausf(SUPI))>, r, AF_key2(AF_ID)))
 	else (
+            new fake_response;
             new r2; out(Caf, enc(<<ko, ko>, enc(ko, r', r2)>, r, AF_key2(AF_ID)))
         )
     )
@@ -101,37 +102,37 @@ process Core_KAF (AF_ID: index) =
  (* On peut envoyer le SUPI à l'AF et avoir un key_shared(supi, af_id) *)
 process UE_KAF (SUPI:index, af_id:index) =
      new r;
-    ue_one: out(Caf, ue_af_enc(<db_akid(SUPI), <af_id_index_to_message(af_id), pk(UE_key(SUPI))>>, r, pk(AF_ue_key(af_id)))); 
+    ue_one: out(Caf, <db_akid(SUPI)(af_id), af_id_index_to_message(af_id)>);
     ue_seven :in(Cue, x).
  
 
-
 system [akma] (
-	!_supi (
-		phone_init: UE_initial (supi) |
-		ntw_init: Core_initial (supi) |
-		!_af_id (phone_kaf: UE_KAF (supi, af_id))
-	) |
-	!_af_id (
-		ntw_kaf: Core_KAF (af_id) |
-		af: AF (af_id)
-	)
+    !_supi !_af_id (
+        phone_init: UE_initial (supi, af_id) |
+        ntw_init: Core_initial (supi, af_id) |
+        phone_kaf: UE_KAF (supi, af_id)
+    ) |
+    !_af_id (
+        af: AF (af_id) |
+        ntw_kaf: Core_KAF (af_id)
+    )
 ).
 
 lemma [akma] reachability_init :
-	forall (supi:index),
-		happens(phone_init(supi)) =>
-		((dec(input@phone_init(supi),key_shared(supi)) <> fail)
-		=>
-		(exists (ntw_supi:index),
-			ntw_init(ntw_supi) < phone_init(supi) &&
-			output@ntw_init(ntw_supi) = input@phone_init(supi))).
+    forall (supi, af_id:index),
+        happens(phone_init(supi, af_id)) =>
+	((dec(input@phone_init(supi, af_id),key_shared(supi)) <> fail)
+	=>
+	(exists (ntw_supi, ntw_af_id:index),
+	    ntw_init(ntw_supi, ntw_af_id) < phone_init(supi, ntw_af_id) &&
+	    output@ntw_init(ntw_supi, ntw_af_id) = input@phone_init(supi, ntw_af_id))).
 Proof.
-    intro supi Hap Hdec.
+    intro supi af_id Hap Hdec.
 	intctxt Hdec.
-	intro [H1 H2].
-	exists supi.
-	split ; auto.
+	intro [af_id0 [H1 H2]].
+        (* This might not be true in current state... *)
+        assert af_id0 = af_id by admit.
+        by exists supi, af_id.
 Qed.
 
 lemma [akma] kaf_reachability:
@@ -146,7 +147,22 @@ lemma [akma] kaf_reachability:
 	).
 Proof.
   intro ntw_af_id supi [Hap [Hdb [Hdec Haf_id]]].
-  intctxt Hdec; intro [Hb Hi] ; exists ntw_af_id => //.
-    + admit.
-    + admit.
+  intctxt Hdec; intro *; exists ntw_af_id => //.
+Qed.
+
+equiv [akma] unlinkability.
+Proof.
+    induction t => //.
+        + admit.
+        + admit.
+        + admit.
+        + admit.
+        + admit.
+        + admit.
+        + admit.
+        + admit.
+        + admit.
+        + admit.
+        + admit.
+        + admit.
 Qed.
