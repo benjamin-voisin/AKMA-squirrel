@@ -1,0 +1,648 @@
+type token =
+    XOR
+  | WITH
+  | WHERE
+  | VAR
+  | USE
+  | UNDO
+  | UNDERSCORE
+  | UFORALL
+  | UEXISTS
+  | TYPE
+  | TRY
+  | TRUE
+  | TRANS
+  | TIMESTAMP
+  | TIME
+  | TILDE
+  | TICK
+  | THEOREM
+  | THEN
+  | TACTIC
+  | SYSTEM
+  | SUCHTHAT
+  | STAR
+  | SPLITSEQ
+  | SMT
+  | SLASHSLASHEQUAL
+  | SLASHSLASH
+  | SLASHEQUAL
+  | SLASH
+  | SIMPL
+  | SIGNATURE
+  | SHARP
+  | SET
+  | SEQ
+  | SENC
+  | SEMICOLON
+  | SEARCH
+  | RPAREN
+  | RND
+  | RIGHTINFIXSYMB of string
+  | REWRITE
+  | REVERT
+  | RETURN
+  | RESET
+  | REPEAT
+  | RENAME
+  | REMEMBER
+  | REDUCE
+  | RBRACKET
+  | RBRACE
+  | RARROW
+  | RANGLE
+  | QUOTE
+  | QUANTIF
+  | QMARK
+  | QED
+  | PROOF
+  | PROF
+  | PROCESS
+  | PRINT
+  | PREDICATE
+  | PLUS
+  | PERCENT
+  | PATH of string
+  | PARALLEL
+  | OUT
+  | ORACLE
+  | OR
+  | OP
+  | NULL
+  | NOT
+  | NOSIMPL
+  | NEW
+  | NEQ
+  | NAME
+  | MUTABLE
+  | MINUS
+  | MESSAGE
+  | MEMSEQ
+  | LPAREN
+  | LOCALIZE
+  | LOCAL
+  | LLET
+  | LET
+  | LEQ
+  | LEMMA
+  | LEFTINFIXSYMB of string
+  | LBRACKET
+  | LBRACE
+  | LANGLE
+  | INTRO
+  | INT of int
+  | INDUCTION
+  | INDEX
+  | INCLUDE
+  | IN
+  | IF
+  | ID of string
+  | HINT
+  | HELP
+  | HAVE
+  | HASH
+  | GPRF
+  | GOR
+  | GLOBAL
+  | GEQ
+  | GENERALIZE
+  | GDH
+  | GCCA
+  | GAND
+  | GAME
+  | FUN
+  | FRESH
+  | FORALL
+  | FIND
+  | FALSE
+  | FA
+  | EXN
+  | EXISTS
+  | EQUIV
+  | EQ
+  | EOF
+  | ELSE
+  | DOT
+  | DOLLAR
+  | DIFF
+  | DESTRUCT
+  | DEQUIVARROW
+  | DEPENDS
+  | DEPENDENT
+  | DDH
+  | DARROW
+  | CYCLE
+  | CS
+  | CRYPTO
+  | CONSTSEQ
+  | COMMA
+  | COLONEQ
+  | COLON
+  | CLEAR
+  | CHECKFAIL
+  | CHANNEL
+  | CDH
+  | CASE
+  | BY
+  | BOOLEAN
+  | BOOL
+  | BANGU
+  | BANG of string
+  | AXIOM
+  | AUTO
+  | ATSLASH
+  | AT
+  | ASSERT
+  | AS
+  | ARROW
+  | APPLY
+  | AND
+  | AENC
+  | ACTION
+  | ABSTRACT
+  | ABORT
+module T = Squirrelcore.Tactics
+module SE = Squirrelcore.SystemExpr
+module L = Squirrelcore.Location
+val sloc : Lexing.position -> Lexing.position -> 'a -> 'a L.located
+val mk_abstract : L.t -> string -> 'a list -> 'a T.ast
+val menhir_begin_marker : int
+val xv_var_tags : Squirrelcore.Theory.var_tags
+val xv_undo : int
+val xv_ty_var : Squirrelcore.Theory.lsymb
+val xv_ty_tagged : Squirrelcore.Theory.p_ty * Squirrelcore.Theory.var_tags
+val xv_ty_i : Squirrelcore.Theory.p_ty_i
+val xv_ty_args : Squirrelcore.Theory.lsymb list
+val xv_ty : Squirrelcore.Theory.p_ty
+val xv_trans_arg_item : int L.located * Squirrelcore.Theory.term
+val xv_trans_arg : Squirrelcore.TacticsArgs.trans_arg
+val xv_top_proofmode_or_undo : Squirrelcore.ProverLib.input_or_undo
+val xv_top_proofmode : Squirrelcore.ProverLib.input
+val xv_top_process : Squirrelcore.Process.Parse.t
+val xv_top_global_formula : Squirrelcore.Theory.global_formula
+val xv_top_formula : Squirrelcore.Theory.term
+val xv_term_list : Squirrelcore.Theory.term list
+val xv_term_i : Squirrelcore.Theory.term_i
+val xv_term : Squirrelcore.Theory.term
+val xv_tactic_params : Squirrelcore.TacticsArgs.parser_arg list
+val xv_tactic_param : Squirrelcore.TacticsArgs.parser_arg
+val xv_tactic : Squirrelcore.ProverTactics.AST.t
+val xv_tac_term : Squirrelcore.Theory.term
+val xv_tac_any_term : Squirrelcore.Theory.any_term
+val xv_tac : Squirrelcore.ProverTactics.AST.t
+val xv_system_modifier : Squirrelcore.Decl.global_rule
+val xv_system_item_list : SE.Parse.item list
+val xv_system_item : SE.Parse.item
+val xv_system_expr : Squirrelcore.SystemExpr.Parse.t
+val xv_system_annot_cnt : SE.Parse.sys_cnt
+val xv_system_annot : SE.Parse.sys_cnt L.located
+val xv_sty_i : Squirrelcore.Theory.p_ty_i
+val xv_sty : Squirrelcore.Theory.p_ty
+val xv_sterm_i : Squirrelcore.Theory.term_i
+val xv_sterm : Squirrelcore.Theory.term
+val xv_statement_name : Squirrelcore.Theory.lsymb option
+val xv_spt_cnt : Squirrelcore.Theory.pt_cnt
+val xv_spt : Squirrelcore.Theory.pt
+val xv_slist1_ty_var_empty_ : Squirrelcore.Theory.lsymb list
+val xv_slist1_trans_arg_item_COMMA_ :
+  (int L.located * Squirrelcore.Theory.term) list
+val xv_slist1_term_COMMA_ : Squirrelcore.Theory.term list
+val xv_slist1_tac_term_COMMA_ : Squirrelcore.Theory.term list
+val xv_slist1_sty_STAR_ : Squirrelcore.Theory.p_ty list
+val xv_slist1_sterm_empty_ : Squirrelcore.Theory.term list
+val xv_slist1_single_target_COMMA_ : Squirrelcore.Theory.lsymb list
+val xv_slist1_simpl_lval_COMMA_ : Squirrelcore.Theory.lsymb list
+val xv_slist1_sel_tac_PARALLEL_ :
+  (T.selector * Squirrelcore.TacticsArgs.parser_arg T.ast) list
+val xv_slist1_rw_arg_empty_ : Squirrelcore.TacticsArgs.rw_arg list
+val xv_slist1_pt_arg_empty_ : Squirrelcore.Theory.pt_app_arg list
+val xv_slist1_naming_pat_empty_ : Squirrelcore.TacticsArgs.naming_pat list
+val xv_slist1_lval_COMMA_ : Squirrelcore.Theory.lval list
+val xv_slist1_lsymb_empty_ : Squirrelcore.Theory.lsymb list
+val xv_slist1_lsymb_COMMA_ : Squirrelcore.Theory.var_tags
+val xv_slist1_intro_pat_empty_ : Squirrelcore.TacticsArgs.intro_pattern list
+val xv_slist1_int_COMMA_ : T.selector
+val xv_slist1_fa_arg_COMMA_ : Squirrelcore.TacticsArgs.fa_arg list
+val xv_slist1_dh_flag_COMMA_ : Squirrelcore.Symbols.dh_hyp list
+val xv_slist1_constseq_arg_empty_ :
+  (Squirrelcore.Theory.term * Squirrelcore.Theory.term) list
+val xv_slist1_c_ty_empty_ : Squirrelcore.Decl.c_tys
+val xv_slist1_bnd_group_simpl_lval_ty_tagged__COMMA_ :
+  Squirrelcore.Theory.bnd_tagged list list
+val xv_slist1_bnd_group_simpl_lval_ty__COMMA_ :
+  Squirrelcore.Theory.bnd list list
+val xv_slist1_bnd_group_lval_ty_tagged__COMMA_ :
+  Squirrelcore.Theory.ext_bnd list list
+val xv_slist_term_COMMA_ : Squirrelcore.Theory.term list
+val xv_slist_system_expr_empty_ : Squirrelcore.Theory.SE.Parse.t list
+val xv_slist_sterm_empty_ : Squirrelcore.Theory.term list
+val xv_slist_simpl_ip_empty_ : Squirrelcore.TacticsArgs.simpl_pat list
+val xv_slist_simpl_ip_PARALLEL_ : Squirrelcore.TacticsArgs.simpl_pat list
+val xv_slist_se_info_empty_ : Squirrelcore.Theory.lsymb list
+val xv_slist_se_bnd_empty_ :
+  (Squirrelcore.Theory.lsymb * Squirrelcore.Theory.lsymb list) list
+val xv_slist_s_item_noargs_empty_ : Squirrelcore.TacticsArgs.s_item list
+val xv_slist_oracle_decl_empty_ : Squirrelcore.Crypto.Parse.oracle_decl list
+val xv_slist_named_arg_empty_ : Squirrelcore.TacticsArgs.named_args
+val xv_slist_multi_term_bnd_empty_ :
+  (Squirrelcore.Theory.lsymb * Squirrelcore.Theory.bnds) list
+val xv_slist_lsymb_empty_ : Squirrelcore.Theory.lsymb list
+val xv_slist_lsymb_COMMA_ : Squirrelcore.Theory.var_tags
+val xv_slist_label_COMMA_ : Squirrelcore.Theory.lsymb list
+val xv_slist_game_var_rnd_empty_ : Squirrelcore.Crypto.Parse.var_rnd list
+val xv_slist_game_var_decl_empty_ : Squirrelcore.Crypto.Parse.var_decl list
+val xv_slist_game_update_empty_ :
+  (Squirrelcore.Theory.lsymb * Squirrelcore.Theory.term) list
+val xv_slist_ext_bnd_tagged_empty_ : Squirrelcore.Theory.ext_bnds list
+val xv_slist_crypto_arg_empty_ : Squirrelcore.TacticsArgs.crypto_args
+val xv_slist_bty_info_COMMA_ : Squirrelcore.Theory.lsymb list
+val xv_slist_bnd_tagged_empty_ : Squirrelcore.Theory.bnd_tagged list list
+val xv_slist_bnd_empty_ : Squirrelcore.Theory.bnds list
+val xv_single_target : string L.located
+val xv_simpl_lval : Squirrelcore.Theory.lsymb
+val xv_simpl_ip : Squirrelcore.TacticsArgs.simpl_pat
+val xv_set_option : Squirrelcore.Config.p_set_param
+val xv_separated_nonempty_list_empty_ty_var_ : Squirrelcore.Theory.lsymb list
+val xv_separated_nonempty_list_empty_system_expr_ :
+  Squirrelcore.Theory.SE.Parse.t list
+val xv_separated_nonempty_list_empty_sterm_ : Squirrelcore.Theory.term list
+val xv_separated_nonempty_list_empty_simpl_ip_ :
+  Squirrelcore.TacticsArgs.simpl_pat list
+val xv_separated_nonempty_list_empty_se_info_ :
+  Squirrelcore.Theory.lsymb list
+val xv_separated_nonempty_list_empty_se_bnd_ :
+  (Squirrelcore.Theory.lsymb * Squirrelcore.Theory.lsymb list) list
+val xv_separated_nonempty_list_empty_s_item_noargs_ :
+  Squirrelcore.TacticsArgs.s_item list
+val xv_separated_nonempty_list_empty_rw_arg_ :
+  Squirrelcore.TacticsArgs.rw_arg list
+val xv_separated_nonempty_list_empty_pt_arg_ :
+  Squirrelcore.Theory.pt_app_arg list
+val xv_separated_nonempty_list_empty_oracle_decl_ :
+  Squirrelcore.Crypto.Parse.oracle_decl list
+val xv_separated_nonempty_list_empty_naming_pat_ :
+  Squirrelcore.TacticsArgs.naming_pat list
+val xv_separated_nonempty_list_empty_named_arg_ :
+  Squirrelcore.TacticsArgs.named_args
+val xv_separated_nonempty_list_empty_multi_term_bnd_ :
+  (Squirrelcore.Theory.lsymb * Squirrelcore.Theory.bnds) list
+val xv_separated_nonempty_list_empty_lsymb_ : Squirrelcore.Theory.lsymb list
+val xv_separated_nonempty_list_empty_intro_pat_ :
+  Squirrelcore.TacticsArgs.intro_pattern list
+val xv_separated_nonempty_list_empty_game_var_rnd_ :
+  Squirrelcore.Crypto.Parse.var_rnd list
+val xv_separated_nonempty_list_empty_game_var_decl_ :
+  Squirrelcore.Crypto.Parse.var_decl list
+val xv_separated_nonempty_list_empty_game_update_ :
+  (Squirrelcore.Theory.lsymb * Squirrelcore.Theory.term) list
+val xv_separated_nonempty_list_empty_ext_bnd_tagged_ :
+  Squirrelcore.Theory.ext_bnds list
+val xv_separated_nonempty_list_empty_crypto_arg_ :
+  Squirrelcore.TacticsArgs.crypto_args
+val xv_separated_nonempty_list_empty_constseq_arg_ :
+  (Squirrelcore.Theory.term * Squirrelcore.Theory.term) list
+val xv_separated_nonempty_list_empty_c_ty_ : Squirrelcore.Decl.c_tys
+val xv_separated_nonempty_list_empty_bnd_tagged_ :
+  Squirrelcore.Theory.bnd_tagged list list
+val xv_separated_nonempty_list_empty_bnd_ : Squirrelcore.Theory.bnds list
+val xv_separated_nonempty_list_STAR_sty_ : Squirrelcore.Theory.p_ty list
+val xv_separated_nonempty_list_PARALLEL_simpl_ip_ :
+  Squirrelcore.TacticsArgs.simpl_pat list
+val xv_separated_nonempty_list_PARALLEL_sel_tac_ :
+  (T.selector * Squirrelcore.TacticsArgs.parser_arg T.ast) list
+val xv_separated_nonempty_list_COMMA_trans_arg_item_ :
+  (int L.located * Squirrelcore.Theory.term) list
+val xv_separated_nonempty_list_COMMA_term_ : Squirrelcore.Theory.term list
+val xv_separated_nonempty_list_COMMA_tac_term_ :
+  Squirrelcore.Theory.term list
+val xv_separated_nonempty_list_COMMA_single_target_ :
+  Squirrelcore.Theory.lsymb list
+val xv_separated_nonempty_list_COMMA_simpl_lval_ :
+  Squirrelcore.Theory.lsymb list
+val xv_separated_nonempty_list_COMMA_lval_ : Squirrelcore.Theory.lval list
+val xv_separated_nonempty_list_COMMA_lsymb_ : Squirrelcore.Theory.var_tags
+val xv_separated_nonempty_list_COMMA_label_ : Squirrelcore.Theory.lsymb list
+val xv_separated_nonempty_list_COMMA_int_ : T.selector
+val xv_separated_nonempty_list_COMMA_fa_arg_ :
+  Squirrelcore.TacticsArgs.fa_arg list
+val xv_separated_nonempty_list_COMMA_dh_flag_ :
+  Squirrelcore.Symbols.dh_hyp list
+val xv_separated_nonempty_list_COMMA_bty_info_ :
+  Squirrelcore.Theory.lsymb list
+val xv_separated_nonempty_list_COMMA_bnd_group_simpl_lval_ty_tagged__ :
+  Squirrelcore.Theory.bnd_tagged list list
+val xv_separated_nonempty_list_COMMA_bnd_group_simpl_lval_ty__ :
+  Squirrelcore.Theory.bnd list list
+val xv_separated_nonempty_list_COMMA_bnd_group_lval_ty_tagged__ :
+  Squirrelcore.Theory.ext_bnd list list
+val xv_separated_list_empty_system_expr_ :
+  Squirrelcore.Theory.SE.Parse.t list
+val xv_separated_list_empty_sterm_ : Squirrelcore.Theory.term list
+val xv_separated_list_empty_simpl_ip_ :
+  Squirrelcore.TacticsArgs.simpl_pat list
+val xv_separated_list_empty_se_info_ : Squirrelcore.Theory.lsymb list
+val xv_separated_list_empty_se_bnd_ :
+  (Squirrelcore.Theory.lsymb * Squirrelcore.Theory.lsymb list) list
+val xv_separated_list_empty_s_item_noargs_ :
+  Squirrelcore.TacticsArgs.s_item list
+val xv_separated_list_empty_oracle_decl_ :
+  Squirrelcore.Crypto.Parse.oracle_decl list
+val xv_separated_list_empty_named_arg_ : Squirrelcore.TacticsArgs.named_args
+val xv_separated_list_empty_multi_term_bnd_ :
+  (Squirrelcore.Theory.lsymb * Squirrelcore.Theory.bnds) list
+val xv_separated_list_empty_lsymb_ : Squirrelcore.Theory.lsymb list
+val xv_separated_list_empty_game_var_rnd_ :
+  Squirrelcore.Crypto.Parse.var_rnd list
+val xv_separated_list_empty_game_var_decl_ :
+  Squirrelcore.Crypto.Parse.var_decl list
+val xv_separated_list_empty_game_update_ :
+  (Squirrelcore.Theory.lsymb * Squirrelcore.Theory.term) list
+val xv_separated_list_empty_ext_bnd_tagged_ :
+  Squirrelcore.Theory.ext_bnds list
+val xv_separated_list_empty_crypto_arg_ :
+  Squirrelcore.TacticsArgs.crypto_args
+val xv_separated_list_empty_bnd_tagged_ :
+  Squirrelcore.Theory.bnd_tagged list list
+val xv_separated_list_empty_bnd_ : Squirrelcore.Theory.bnds list
+val xv_separated_list_PARALLEL_simpl_ip_ :
+  Squirrelcore.TacticsArgs.simpl_pat list
+val xv_separated_list_COMMA_term_ : Squirrelcore.Theory.term list
+val xv_separated_list_COMMA_lsymb_ : Squirrelcore.Theory.var_tags
+val xv_separated_list_COMMA_label_ : Squirrelcore.Theory.lsymb list
+val xv_separated_list_COMMA_bty_info_ : Squirrelcore.Theory.lsymb list
+val xv_selector : T.selector
+val xv_sel_tacs :
+  (T.selector * Squirrelcore.TacticsArgs.parser_arg T.ast) list
+val xv_sel_tac : T.selector * Squirrelcore.TacticsArgs.parser_arg T.ast
+val xv_se_var : Squirrelcore.Theory.lsymb
+val xv_se_info : Squirrelcore.Theory.lsymb
+val xv_se_bnds :
+  (Squirrelcore.Theory.lsymb * Squirrelcore.Theory.lsymb list) list
+val xv_se_bnd : Squirrelcore.Theory.lsymb * Squirrelcore.Theory.lsymb list
+val xv_se_args : Squirrelcore.Theory.SE.Parse.t list
+val xv_s_item_noargs_list : Squirrelcore.TacticsArgs.s_item list
+val xv_s_item_noargs : Squirrelcore.TacticsArgs.s_item
+val xv_s_item_body : Squirrelcore.TacticsArgs.s_item_body
+val xv_s_item : Squirrelcore.TacticsArgs.s_item
+val xv_rw_type :
+  [ `Expand of Squirrelcore.Theory.lsymb
+  | `ExpandAll of L.t
+  | `Rw of Squirrelcore.Theory.pt ]
+val xv_rw_mult : Squirrelcore.TacticsArgs.rw_count
+val xv_rw_item :
+  [ `Expand of Squirrelcore.Theory.lsymb
+  | `ExpandAll of L.t
+  | `Rw of Squirrelcore.Theory.pt ] Squirrelcore.TacticsArgs.rw_item_g
+val xv_rw_equiv_item : Squirrelcore.TacticsArgs.rw_equiv_item
+val xv_rw_dir : [ `LeftToRight | `RightToLeft ]
+val xv_rw_args : Squirrelcore.TacticsArgs.rw_arg list
+val xv_rw_arg : Squirrelcore.TacticsArgs.rw_arg
+val xv_rewrite_ip : [ `LeftToRight | `RightToLeft ]
+val xv_rewrite_equiv : unit
+val xv_query : Squirrelcore.ProverLib.input
+val xv_quantif : Squirrelcore.Theory.quant
+val xv_quant : Squirrelcore.Theory.pquant
+val xv_pt_use_tac : Squirrelcore.Theory.pt
+val xv_pt_cnt : Squirrelcore.Theory.pt_cnt
+val xv_pt_arg : Squirrelcore.Theory.pt_app_arg
+val xv_pt : Squirrelcore.Theory.pt
+val xv_projs : Squirrelcore.Theory.lsymb list option
+val xv_processes_i : Squirrelcore.Process.Parse.cnt
+val xv_process_i : Squirrelcore.Process.Parse.cnt
+val xv_process_cont : Squirrelcore.Process.Parse.t
+val xv_process : Squirrelcore.Process.Parse.t
+val xv_predicate_body : Squirrelcore.Theory.global_formula
+val xv_paren_slist1_term_COMMA__ : Squirrelcore.Theory.term list
+val xv_paren_slist_term_COMMA__ : Squirrelcore.Theory.term list
+val xv_p_include : Squirrelcore.ProverLib.include_param
+val xv_oracle_ret : Squirrelcore.Theory.term
+val xv_oracle_decls : Squirrelcore.Crypto.Parse.oracle_decl list
+val xv_oracle_decl : Squirrelcore.Crypto.Parse.oracle_decl
+val xv_oracle_body : Squirrelcore.Crypto.Parse.oracle_body
+val xv_option_param : Squirrelcore.Config.p_param_val
+val xv_option_sterm_ : Squirrelcore.Theory.term option
+val xv_option_predicate_body_ : Squirrelcore.Theory.global_formula option
+val xv_option_oracle_ret_ : Squirrelcore.Theory.term option
+val xv_option_have_ip_ : Squirrelcore.TacticsArgs.have_ip option
+val xv_option_crypto_arg_extra_ :
+  (Squirrelcore.Theory.bnds * Squirrelcore.Theory.term) option
+val xv_option_colon_ty_ : Squirrelcore.Theory.p_ty option
+val xv_option_as_n_ips_ : Squirrelcore.TacticsArgs.naming_pat list option
+val xv_option_as_have_ip_ : Squirrelcore.TacticsArgs.have_ip option
+val xv_option_SEMICOLON_ : unit option
+val xv_opt_indices : Squirrelcore.Theory.lsymb list
+val xv_obs_equiv_statement : Squirrelcore.Goal.Parsed.t
+val xv_naming_pat : Squirrelcore.TacticsArgs.naming_pat
+val xv_named_args : Squirrelcore.TacticsArgs.named_args
+val xv_named_arg : Squirrelcore.TacticsArgs.named_arg
+val xv_multi_term_bnds :
+  (Squirrelcore.Theory.lsymb * Squirrelcore.Theory.bnds) list
+val xv_multi_term_bnd : Squirrelcore.Theory.lsymb * Squirrelcore.Theory.bnds
+val xv_lval : Squirrelcore.Theory.lval
+val xv_lsymb_decl :
+  Squirrelcore.Symbols.symb_type * Squirrelcore.Theory.lsymb
+val xv_lsymb : Squirrelcore.Theory.lsymb
+val xv_lpath : string L.located
+val xv_loption_separated_nonempty_list_empty_system_expr__ :
+  Squirrelcore.Theory.SE.Parse.t list
+val xv_loption_separated_nonempty_list_empty_sterm__ :
+  Squirrelcore.Theory.term list
+val xv_loption_separated_nonempty_list_empty_simpl_ip__ :
+  Squirrelcore.TacticsArgs.simpl_pat list
+val xv_loption_separated_nonempty_list_empty_se_info__ :
+  Squirrelcore.Theory.lsymb list
+val xv_loption_separated_nonempty_list_empty_se_bnd__ :
+  (Squirrelcore.Theory.lsymb * Squirrelcore.Theory.lsymb list) list
+val xv_loption_separated_nonempty_list_empty_s_item_noargs__ :
+  Squirrelcore.TacticsArgs.s_item list
+val xv_loption_separated_nonempty_list_empty_oracle_decl__ :
+  Squirrelcore.Crypto.Parse.oracle_decl list
+val xv_loption_separated_nonempty_list_empty_named_arg__ :
+  Squirrelcore.TacticsArgs.named_args
+val xv_loption_separated_nonempty_list_empty_multi_term_bnd__ :
+  (Squirrelcore.Theory.lsymb * Squirrelcore.Theory.bnds) list
+val xv_loption_separated_nonempty_list_empty_lsymb__ :
+  Squirrelcore.Theory.lsymb list
+val xv_loption_separated_nonempty_list_empty_game_var_rnd__ :
+  Squirrelcore.Crypto.Parse.var_rnd list
+val xv_loption_separated_nonempty_list_empty_game_var_decl__ :
+  Squirrelcore.Crypto.Parse.var_decl list
+val xv_loption_separated_nonempty_list_empty_game_update__ :
+  (Squirrelcore.Theory.lsymb * Squirrelcore.Theory.term) list
+val xv_loption_separated_nonempty_list_empty_ext_bnd_tagged__ :
+  Squirrelcore.Theory.ext_bnds list
+val xv_loption_separated_nonempty_list_empty_crypto_arg__ :
+  Squirrelcore.TacticsArgs.crypto_args
+val xv_loption_separated_nonempty_list_empty_bnd_tagged__ :
+  Squirrelcore.Theory.bnd_tagged list list
+val xv_loption_separated_nonempty_list_empty_bnd__ :
+  Squirrelcore.Theory.bnds list
+val xv_loption_separated_nonempty_list_PARALLEL_simpl_ip__ :
+  Squirrelcore.TacticsArgs.simpl_pat list
+val xv_loption_separated_nonempty_list_COMMA_term__ :
+  Squirrelcore.Theory.term list
+val xv_loption_separated_nonempty_list_COMMA_lsymb__ :
+  Squirrelcore.Theory.var_tags
+val xv_loption_separated_nonempty_list_COMMA_label__ :
+  Squirrelcore.Theory.lsymb list
+val xv_loption_separated_nonempty_list_COMMA_bty_info__ :
+  Squirrelcore.Theory.lsymb list
+val xv_local_statement : Squirrelcore.Goal.Parsed.t
+val xv_loc_ty_i_ : Squirrelcore.Theory.p_ty
+val xv_loc_term_i_ : Squirrelcore.Theory.term
+val xv_loc_system_item_list_ : Squirrelcore.SystemExpr.Parse.t
+val xv_loc_system_annot_cnt_ : SE.Parse.sys_cnt L.located
+val xv_loc_sty_i_ : Squirrelcore.Theory.p_ty
+val xv_loc_sterm_i_ : Squirrelcore.Theory.term
+val xv_loc_spt_cnt_ : Squirrelcore.Theory.pt
+val xv_loc_rw_dir_ : Squirrelcore.TacticsArgs.rw_dir
+val xv_loc_rewrite_ip_ : Squirrelcore.TacticsArgs.rw_dir
+val xv_loc_pt_cnt_ : Squirrelcore.Theory.pt
+val xv_loc_processes_i_ : Squirrelcore.Process.Parse.t
+val xv_loc_process_i_ : Squirrelcore.Process.Parse.t
+val xv_loc_lemma_i_ : Squirrelcore.Goal.Parsed.t L.located
+val xv_loc_int_ : int L.located
+val xv_loc_infix_s0_ : Squirrelcore.Theory.lsymb
+val xv_loc_infix_s_ : (string * Squirrelcore.Symbols.assoc) L.located
+val xv_loc_global_formula_i_ : Squirrelcore.Theory.global_formula_i L.located
+val xv_loc_declaration_no_concat_i_ :
+  Squirrelcore.Decl.declaration_i L.located
+val xv_loc_declaration_i_ : Squirrelcore.Decl.declaration_i L.located
+val xv_loc_biframe_ : Squirrelcore.Theory.equiv L.located
+val xv_loc_alias_name_ : Squirrelcore.Theory.lsymb
+val xv_loc_UNDERSCORE_ : unit L.located
+val xv_loc_STAR_ : unit L.located
+val xv_loc_SMT_ : unit L.located
+val xv_loc_SLASHSLASHEQUAL_ : unit L.located
+val xv_loc_SLASHSLASH_ : unit L.located
+val xv_loc_SLASHEQUAL_ : unit L.located
+val xv_loc_RANGLE_ : unit L.located
+val xv_loc_PATH_ : string L.located
+val xv_loc_NOT_ : unit L.located
+val xv_loc_INT_ : int L.located
+val xv_loc_ID_ : Squirrelcore.Theory.lsymb
+val xv_loc_CASE_ : unit L.located
+val xv_loc_BANG_ : Squirrelcore.Theory.lsymb
+val xv_lloc_rewrite_equiv_ : L.t
+val xv_lloc_generalize_dependent_ : L.t
+val xv_lloc_dependent_induction_ : L.t
+val xv_lloc_USE_ : L.t
+val xv_lloc_TRUE_ : L.t
+val xv_lloc_TRANS_ : L.t
+val xv_lloc_STAR_ : L.t
+val xv_lloc_SPLITSEQ_ : L.t
+val xv_lloc_SIMPL_ : L.t
+val xv_lloc_SET_ : L.t
+val xv_lloc_REWRITE_ : L.t
+val xv_lloc_REVERT_ : L.t
+val xv_lloc_REMEMBER_ : L.t
+val xv_lloc_REDUCE_ : L.t
+val xv_lloc_MEMSEQ_ : L.t
+val xv_lloc_LOCALIZE_ : L.t
+val xv_lloc_INTRO_ : L.t
+val xv_lloc_INDUCTION_ : L.t
+val xv_lloc_HAVE_ : L.t
+val xv_lloc_GENERALIZE_ : L.t
+val xv_lloc_GDH_ : L.t
+val xv_lloc_FRESH_ : L.t
+val xv_lloc_FALSE_ : L.t
+val xv_lloc_FA_ : L.t
+val xv_lloc_EXISTS_ : L.t
+val xv_lloc_EQUIV_ : L.t
+val xv_lloc_DESTRUCT_ : L.t
+val xv_lloc_DEPENDS_ : L.t
+val xv_lloc_DDH_ : L.t
+val xv_lloc_DARROW_ : L.t
+val xv_lloc_CYCLE_ : L.t
+val xv_lloc_CS_ : L.t
+val xv_lloc_CRYPTO_ : L.t
+val xv_lloc_CONSTSEQ_ : L.t
+val xv_lloc_CLEAR_ : L.t
+val xv_lloc_CDH_ : L.t
+val xv_lloc_BY_ : L.t
+val xv_lloc_AUTO_ : L.t
+val xv_lloc_ASSERT_ : L.t
+val xv_lloc_APPLY_ : L.t
+val xv_lemma_i : Squirrelcore.Goal.Parsed.t
+val xv_lemma_head : unit
+val xv_lemma : Squirrelcore.Goal.Parsed.t L.located
+val xv_label : Squirrelcore.Theory.lsymb
+val xv_intro_pat_list : Squirrelcore.TacticsArgs.intro_pattern list
+val xv_intro_pat : Squirrelcore.TacticsArgs.intro_pattern
+val xv_interactive_or_undo : Squirrelcore.ProverLib.input_or_undo
+val xv_interactive : Squirrelcore.ProverLib.input
+val xv_int : int
+val xv_infix_s0 : string
+val xv_infix_s : string * Squirrelcore.Symbols.assoc
+val xv_include_params : Squirrelcore.Theory.var_tags
+val xv_in_target : Squirrelcore.TacticsArgs.in_target
+val xv_hint : Squirrelcore.Hint.p_hint
+val xv_have_tac : Squirrelcore.TacticsArgs.parser_arg T.ast
+val xv_have_ip : Squirrelcore.TacticsArgs.have_ip
+val xv_global_statement : Squirrelcore.Goal.Parsed.t
+val xv_global_formula_i : Squirrelcore.Theory.global_formula_i
+val xv_global_formula : Squirrelcore.Theory.global_formula
+val xv_generalize_dependent : unit
+val xv_game_var_rnds : Squirrelcore.Crypto.Parse.var_rnd list
+val xv_game_var_rnd : Squirrelcore.Crypto.Parse.var_rnd
+val xv_game_var_decls : Squirrelcore.Crypto.Parse.var_decl list
+val xv_game_var_decl : Squirrelcore.Crypto.Parse.var_decl
+val xv_game_updates :
+  (Squirrelcore.Theory.lsymb * Squirrelcore.Theory.term) list
+val xv_game_update : Squirrelcore.Theory.lsymb * Squirrelcore.Theory.term
+val xv_game : Squirrelcore.Crypto.Parse.game_decl
+val xv_fresh_arg : Squirrelcore.TacticsArgs.fresh_arg
+val xv_fa_arg : Squirrelcore.TacticsArgs.fa_arg
+val xv_ext_bnds_tagged_strict : Squirrelcore.Theory.ext_bnds
+val xv_ext_bnds_tagged : Squirrelcore.Theory.ext_bnds
+val xv_ext_bnd_tagged : Squirrelcore.Theory.ext_bnds
+val xv_expnd_type :
+  [ `Expand of Squirrelcore.Theory.lsymb | `ExpandAll of L.t ]
+val xv_expnd_item : Squirrelcore.TacticsArgs.expnd_item
+val xv_enable_kwd_as_id : unit
+val xv_empty : unit
+val xv_else_term : Squirrelcore.Theory.term
+val xv_else_process : Squirrelcore.Process.Parse.t
+val xv_disable_kwd_as_id : unit
+val xv_dh_flags : Squirrelcore.Symbols.dh_hyp list
+val xv_dh_flag : Squirrelcore.Symbols.dh_hyp
+val xv_dependent_induction : unit
+val xv_declarations : Squirrelcore.Decl.declarations
+val xv_declaration_no_concat_i : Squirrelcore.Decl.declaration_i
+val xv_declaration_no_concat : Squirrelcore.Decl.declaration_i L.located
+val xv_declaration_list : Squirrelcore.Decl.declarations
+val xv_declaration_i : Squirrelcore.Decl.declaration_i
+val xv_declaration : Squirrelcore.Decl.declaration
+val xv_crypto_arg_extra : Squirrelcore.Theory.bnds * Squirrelcore.Theory.term
+val xv_crypto_arg : Squirrelcore.TacticsArgs.crypto_arg
+val xv_constseq_arg : Squirrelcore.Theory.term * Squirrelcore.Theory.term
+val xv_colon_ty : Squirrelcore.Theory.p_ty
+val xv_clear_ip : Squirrelcore.Theory.lsymb list
+val xv_c_tys : Squirrelcore.Decl.c_tys
+val xv_c_ty : Squirrelcore.Decl.c_ty
+val xv_bulleted_tactic : Squirrelcore.ProverLib.bulleted_tactics
+val xv_bullet : string
+val xv_bty_infos : Squirrelcore.Theory.lsymb list
+val xv_bty_info : Squirrelcore.Theory.lsymb
+val xv_brace : [ `Close | `Open ]
+val xv_bnds_tagged : Squirrelcore.Theory.bnds_tagged
+val xv_bnds_strict : Squirrelcore.Theory.bnds
+val xv_bnds : Squirrelcore.Theory.bnds
+val xv_bnd_tagged : Squirrelcore.Theory.bnd_tagged list
+val xv_bnd_group_list_simpl_lval_ty_tagged_ :
+  Squirrelcore.Theory.bnd_tagged list
+val xv_bnd_group_list_simpl_lval_ty_ : Squirrelcore.Theory.bnds
+val xv_bnd_group_list_lval_ty_tagged_ : Squirrelcore.Theory.ext_bnds
+val xv_bnd_group_simpl_lval_ty_tagged_ : Squirrelcore.Theory.bnd_tagged list
+val xv_bnd_group_simpl_lval_ty_ : Squirrelcore.Theory.bnd list
+val xv_bnd_group_lval_ty_tagged_ : Squirrelcore.Theory.ext_bnd list
+val xv_bnd : Squirrelcore.Theory.bnds
+val xv_biframe : Squirrelcore.Theory.equiv
+val xv_as_n_ips : Squirrelcore.TacticsArgs.naming_pat list
+val xv_as_have_ip : Squirrelcore.TacticsArgs.have_ip
+val xv_apply_in : Squirrelcore.TacticsArgs.apply_in
+val xv_any_term : Squirrelcore.Theory.any_term
+val xv_and_or_ip : Squirrelcore.TacticsArgs.and_or_pat
+val xv_alias_name : string
+val xv_a_global_formula_i : Squirrelcore.Theory.global_formula_i
+val menhir_end_marker : int

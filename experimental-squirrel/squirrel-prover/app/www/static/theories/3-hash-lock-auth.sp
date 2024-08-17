@@ -1,0 +1,1 @@
+../../../../examples/tutorial/3-hash-lock-auth.sp

@@ -1,0 +1,15 @@
+squirrelcore__Action
+squirrelcore__Channel
+squirrelcore__Env
+squirrelcore__Equiv
+squirrelcore__Ident
+squirrelcore__Location
+squirrelcore__SmartFO
+squirrelcore__Symbols
+squirrelcore__System
+squirrelcore__SystemExpr
+squirrelcore__Term
+squirrelcore__Theory
+squirrelcore__Type
+squirrelcore__Utils
+squirrelcore__Vars

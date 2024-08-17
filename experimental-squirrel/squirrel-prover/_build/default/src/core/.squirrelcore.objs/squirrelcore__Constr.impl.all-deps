@@ -1,0 +1,17 @@
+squirrelcore__Action
+squirrelcore__Channel
+squirrelcore__Checks
+squirrelcore__Config
+squirrelcore__Ident
+squirrelcore__Location
+squirrelcore__Printer
+squirrelcore__Prof
+squirrelcore__Symbols
+squirrelcore__System
+squirrelcore__SystemExpr
+squirrelcore__TConfig
+squirrelcore__Tactics
+squirrelcore__Term
+squirrelcore__Type
+squirrelcore__Utils
+squirrelcore__Vars

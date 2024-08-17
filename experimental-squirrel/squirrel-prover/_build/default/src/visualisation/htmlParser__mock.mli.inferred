@@ -1,0 +1,6 @@
+type token = STR of string | DOT | COM of string | CHAR of char
+module L = Squirrelcore.Location
+module T = Squirrelcore.Tactics
+val menhir_begin_marker : int
+val xv_main : string * string list
+val menhir_end_marker : int

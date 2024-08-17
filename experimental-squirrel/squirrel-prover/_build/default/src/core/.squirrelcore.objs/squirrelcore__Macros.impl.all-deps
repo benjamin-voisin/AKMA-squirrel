@@ -1,0 +1,13 @@
+squirrelcore__Action
+squirrelcore__Channel
+squirrelcore__Constr
+squirrelcore__Ident
+squirrelcore__Location
+squirrelcore__Symbols
+squirrelcore__System
+squirrelcore__SystemExpr
+squirrelcore__Tactics
+squirrelcore__Term
+squirrelcore__Type
+squirrelcore__Utils
+squirrelcore__Vars
