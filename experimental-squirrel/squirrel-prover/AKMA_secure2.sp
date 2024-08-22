@@ -1,6 +1,6 @@
 include Basic.
 set PostQuantumSound = true.
-set timeout = 12.
+set timeout = 30.
 
 
 
@@ -40,14 +40,19 @@ name UE_key : index -> message.
 name AF_ue_key : index -> message.
 *)
 
+name af_id1: index.
+name af_id2: index.
+name supi1: index.
+name supi2: index.
+
 
 game CPA = {
   
-  rnd inde : message;
+  rnd af_id : index;
   rnd m : message; 
   oracle enc x = {
   rnd r : message;
-  return enc(diff(x,m), r,AF_key2(af_id_message_to_index(inde)))
+  return enc(diff(x,m), r,AF_key2(af_id))
   }
 }.
 
@@ -119,25 +124,76 @@ process UE_KAF (SUPI:index, af_id:index) =
     ue_one: out(Caf, <db_akid(SUPI)(af_id), af_id_index_to_message(af_id)>);
     ue_seven :in(Cue, x).
  
+system (
+    ntw_init1: Core_initial (supi1) |
+    ntw_init2: Core_initial (supi2) |
 
+    phone_init11: UE_initial (supi1, af_id1) |
+    phone_init12: UE_initial (supi1, af_id2) |
+    phone_init21: UE_initial (supi2, af_id1) |
+    phone_init22: UE_initial (supi2, af_id2) |
+
+    phone_kaf11: UE_KAF (supi1, af_id1) |
+    phone_kaf12: UE_KAF (supi1, af_id2) |
+    phone_kaf21: UE_KAF (supi2, af_id1) |
+    phone_kaf22: UE_KAF (supi2, af_id2) |
+   
+    af1: AF (af_id1) |
+    af2: AF (af_id2) |
+    ntw_kaf1: Core_KAF (af_id1) |
+    ntw_kaf2: Core_KAF (af_id2)
+).
+
+(*
 system  (
     !_supi (
         ntw_init: Core_initial (supi)
     ) |
-    !_supi !_af_id (
+    !_supi (
         phone_init: UE_initial (supi, af_id) |
         phone_kaf: UE_KAF (supi, af_id)
     ) |
-    !_af_id (
+    (
         af: AF (af_id) |
-        ntw_kaf: Core_KAF (af_id)
+        ntw_kaf: Core_KAF (af_id1)
     )
 ).
+     *)
 
 global lemma _ (t:timestamp[const]) : [happens(t)] -> equiv(frame@t).
 Proof.
   intro H.
-  crypto CPA( af_id) => //.
+  try crypto CPA (af_id: af_id1).
+  induction t => //; try crypto CPA (af_id: af_id1).
+  
+    + expandall. fa !<_, _>. fa if _ then _. repeat fa 1.
+      fresh 2 => //. fresh 2 => //. admit.
+    + expandall. admit.
+    + expandall. admit.
+    + expandall. admit.
+    + expandall. admit.
+    + expandall. admit.
+    + expandall. admit.
+    + expandall. admit.
+    + expandall. admit.
+    + expandall. admit.
+    + expandall. repeat fa !<_, _>. fa 1. fa 1.
+      crypto CPA (af_id: af_id1).
+      deduce 2. fresh 2 => //. fresh 1 => //. admit.
+
+    + expandall. fa !<_, _>. repeat fa 1. admit.
+    + expandall. fa !<_, _>. repeat fa 1. admit.
+    + expandall. fa !<_, _>. repeat fa 1. admit.
+    + expandall. fa !<_, _>. auto.
+    + expandall. fa !<_, _>. fa if _ then _. repeat fa 1. fa 2.
+      deduce 1. admit.
+    + expandall. fa !<_, _>. fa if _ then _. repeat fa 1. crypto CPA (af_id: af_id1).
+    + admit.
+    + admit.
+    + admit.
+    + admit.
+    + admit.
+    + admit.
 Qed.
 
 lemma [akma] reachability_init :
