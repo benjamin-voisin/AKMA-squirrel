@@ -73,7 +73,7 @@ process AF (AF_ID: index) =
       in(Caf, x);
       new fake_response;
       if (fst(fst(dec(x, AF_key2(AF_ID)))) = ok) then (
-          af_seven_ko: out(Cue, diff(snd(dec(x, AF_key2(AF_ID))), fake_response))
+          af_seven_ok: out(Cue, diff(snd(dec(x, AF_key2(AF_ID))), fake_response))
       ) else (
           af_seven_ko: out(Cue, diff(snd(dec(x, AF_key2(AF_ID))), fake_response))
       )
