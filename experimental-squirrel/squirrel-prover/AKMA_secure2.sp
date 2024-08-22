@@ -62,9 +62,10 @@ game CPAok = {
 game CPAko = {
   
   rnd af_id : index; 
+  rnd m: message;
   oracle enc x = {
   rnd r : message;
-  return enc(diff(<ko,ko>,x), r,AF_key2(af_id))
+  return enc(diff(<ko,m>,x), r,AF_key2(af_id))
   }
 }. 
 
