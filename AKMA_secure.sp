@@ -73,7 +73,7 @@ process AF (AF_ID: index) =
       in(Caf, x);
       new fake_response;
       if (fst(fst(dec(x, AF_key2(AF_ID)))) = ok) then (
-          af_seven_ko: out(Cue, diff(snd(dec(x, AF_key2(AF_ID))), fake_response))
+          af_seven_ok: out(Cue, diff(snd(dec(x, AF_key2(AF_ID))), fake_response))
       ) else (
           af_seven_ko: out(Cue, diff(snd(dec(x, AF_key2(AF_ID))), fake_response))
       )
@@ -149,9 +149,29 @@ Proof.
   intctxt Hdec; intro *; exists ntw_af_id => //.
 Qed.
 
+(* certainly false *)
+axiom [akma] fresh_key (supi: index) :
+    (forall (supi0:index), ntw_init(supi0) < ntw_init(supi) => supi <> supi0) &&
+    (forall (supi0,af_id:index),
+       phone_init(supi0, af_id) < ntw_init(supi) => supi <> supi0) &&
+    forall (supi0,af_id:index),
+      phone_init1(supi0, af_id) < ntw_init(supi) => supi <> supi0
+.
+   
 equiv [akma] unlinkability.
 Proof.
     induction t => //.
+        + expandall. fa !<_, _>. fa if _ then _. repeat fa 1.
+          deduce 1. fresh 2 => //. fresh 1 => //. fresh 1. apply fresh_key.
+          auto.
+        + expandall. fa !<_, _>, if _ then _. repeat fa 1.
+          fresh 1.
+          admit.
+        + expandall. fa !<_, _>, if _ then _. repeat fa 1.
+          admit.
+        + expandall. fa !<_, _>, if _ then _. repeat fa 1.
+          admit.
+        + simpl. admit.
         + admit.
         + admit.
         + admit.
@@ -159,9 +179,32 @@ Proof.
         + admit.
         + admit.
         + admit.
-        + admit.
-        + admit.
-        + admit.
-        + admit.
-        + admit.
+Qed.
+     
+     
+
+
+global lemma [akma] unlinkability_2 :
+   Forall (tau:timestamp[const], supi, af_id: index),
+   [happens(tau) => exec@tau => af_seven_ko(af_id) < tau] -> 
+       equiv(frame@tau).    
+Proof.
+  intro tau supi af_id H.
+Qed.
+
+equiv [akma] unlinkability_diffeq.
+Proof.
+     diffeq. intro af_id. intro *.
+     expandall.
+Qed.
+
+name random: message. 
+
+global lemma [akma] detailed_unlinkability:
+    Forall (af_id:index), (
+        equiv(output@af(af_id), random)
+        (* happens(af(af_id)) -> equiv(output@af(af_id), random) *)
+    ).
+Proof.
+    intro af_id.
 Qed.

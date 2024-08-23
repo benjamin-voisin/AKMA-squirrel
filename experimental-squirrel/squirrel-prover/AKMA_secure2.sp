@@ -93,7 +93,7 @@ process AF (AF_ID: index) =
       in(Caf, x);
       new fake_response;
       if (fst(fst(dec(x, AF_key2(AF_ID)))) = ok) then (
-          af_seven_ko: out(Cue, diff(snd(dec(x, AF_key2(AF_ID))), fake_response))
+          af_seven_ok: out(Cue, diff(snd(dec(x, AF_key2(AF_ID))), fake_response))
       ) else (
           af_seven_ko: out(Cue, diff(snd(dec(x, AF_key2(AF_ID))), fake_response))
       )
@@ -163,11 +163,15 @@ system  (
 global lemma _ (t:timestamp[const]) : [happens(t)] -> equiv(frame@t).
 Proof.
   intro H.
+crypto CPA.
+  induction t.
+(*
   try crypto CPA (af_id: af_id1).
   induction t => //; try crypto CPA (af_id: af_id1).
   
     + expandall. fa !<_, _>. fa if _ then _. repeat fa 1.
       fresh 2 => //. fresh 2 => //. admit.
+ *)
     + expandall. admit.
     + expandall. admit.
     + expandall. admit.
@@ -177,7 +181,17 @@ Proof.
     + expandall. admit.
     + expandall. admit.
     + expandall. admit.
-    + expandall. repeat fa !<_, _>. fa 1. fa 1.
+    + expandall. admit.
+    + expandall. admit.
+    + expandall. repeat fa !<_,_>. repeat fa 1. admit.
+    + expandall. repeat fa !<_,_>. repeat fa 1. auto.
+    + expandall. repeat fa !<_,_>. repeat fa 1. admit.
+    + expandall. admit.
+    + expandall. admit.
+    + expandall. admit.
+    + expandall. admit.
+    + expandall. admit. 
+    + expandall. repeat fa !<_, _>. 
       crypto CPA (af_id: af_id1).
       deduce 2. fresh 2 => //. fresh 1 => //. admit.
 
