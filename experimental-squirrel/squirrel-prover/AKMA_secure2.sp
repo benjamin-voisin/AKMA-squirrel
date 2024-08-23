@@ -46,15 +46,29 @@ name supi1: index.
 name supi2: index.
 
 
-game CPA = {
+
+
+game CPAok = {
   
   rnd af_id : index;
-  rnd m : message; 
+  rnd m: message;
   oracle enc x = {
   rnd r : message;
-  return enc(diff(x,m), r,AF_key2(af_id))
+  return enc(diff(<ok,m>, x), r,AF_key2(af_id))
   }
 }.
+
+
+game CPAko = {
+  
+  rnd af_id : index; 
+  rnd m: message;
+  oracle enc x = {
+  rnd r : message;
+  return enc(diff(<ko,m>,x), r,AF_key2(af_id))
+  }
+}. 
+
 
 
 
@@ -93,9 +107,9 @@ process AF (AF_ID: index) =
       in(Caf, x);
       new fake_response;
       if (fst(fst(dec(x, AF_key2(AF_ID)))) = ok) then (
-          af_seven_ok: out(Cue, diff(snd(dec(x, AF_key2(AF_ID))), fake_response))
+          af_seven_ok: out(Cue, diff(snd(dec(x, AF_key2(AF_ID))), fake_response)) (*<ok,k>, m*)
       ) else (
-          af_seven_ko: out(Cue, diff(snd(dec(x, AF_key2(AF_ID))), fake_response))
+          af_seven_ko: out(Cue, diff(snd(dec(x, AF_key2(AF_ID))), fake_response)) (*<ko,ko>, m*)
       )
     ).
 
@@ -110,7 +124,7 @@ process Core_KAF (AF_ID: index) =
             let kaf = fKAF(db_kakma(SUPI), af_id_index_to_message(AF_ID)) in
             out(Caf, enc(<<ok,kaf>, enc(kaf, r', db_kausf(SUPI))>, r, AF_key2(AF_ID)))
 	else (
-            new r2; out(Caf, enc(<<ko, ko>, enc(ko, r', r2)>, r, AF_key2(AF_ID)))
+            new r2; out(Caf, enc(<<ko, r2>, enc(ko, r', r2)>, r, AF_key2(AF_ID)))
         )
     )
     else (
@@ -126,22 +140,15 @@ process UE_KAF (SUPI:index, af_id:index) =
  
 system (
     ntw_init1: Core_initial (supi1) |
-    ntw_init2: Core_initial (supi2) |
 
     phone_init11: UE_initial (supi1, af_id1) |
-    phone_init12: UE_initial (supi1, af_id2) |
-    phone_init21: UE_initial (supi2, af_id1) |
-    phone_init22: UE_initial (supi2, af_id2) |
 
     phone_kaf11: UE_KAF (supi1, af_id1) |
-    phone_kaf12: UE_KAF (supi1, af_id2) |
-    phone_kaf21: UE_KAF (supi2, af_id1) |
-    phone_kaf22: UE_KAF (supi2, af_id2) |
-   
+
     af1: AF (af_id1) |
-    af2: AF (af_id2) |
-    ntw_kaf1: Core_KAF (af_id1) |
-    ntw_kaf2: Core_KAF (af_id2)
+
+    ntw_kaf1: Core_KAF (af_id1)
+
 ).
 
 (*
@@ -160,6 +167,7 @@ system  (
 ).
      *)
 
+(* happens(t) => exec@t => af_seven_ok(af_id)<=t *)
 global lemma _ (t:timestamp[const]) : [happens(t)] -> equiv(frame@t).
 Proof.
   intro H.
@@ -168,7 +176,6 @@ crypto CPA.
 (*
   try crypto CPA (af_id: af_id1).
   induction t => //; try crypto CPA (af_id: af_id1).
-  
     + expandall. fa !<_, _>. fa if _ then _. repeat fa 1.
       fresh 2 => //. fresh 2 => //. admit.
  *)
